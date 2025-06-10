@@ -1,7 +1,6 @@
 <script>
 export default {
     name: 'Marker',
-    emits: ["routeSelected"],
     props: {
         id: Number,
         x_percentage: Number,
@@ -34,13 +33,17 @@ export default {
                 'border-radius' : '50%',
                 'top': this.getYPercentage(),
                 'left': this.getXPercentage(),
-                'position': 'absolute'
+                'position': 'absolute',
+                'cursor': 'pointer'
             }
         }
     }
 }
 </script>
 <template>
-    <div :style="cssProps" @click="routeSelected">
+    <div 
+        :style="cssProps" 
+        @click="$emit('markerSelected')"
+    >
     </div>
 </template>

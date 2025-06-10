@@ -1,5 +1,7 @@
 <script>
+import { BListGroup } from 'bootstrap-vue-next';
 import ImageMarker from './ImageMarker.vue';
+import { BListGroupItem } from 'bootstrap-vue-next';
 export default {
     name: 'UserTrackRoutes',
     data: function () {
@@ -7,9 +9,10 @@ export default {
             allRoutes: undefined,
             RouteGradeRangeSelected: null,
             RouteHoldColourSelected: null,
-            filteredRoutes: [],
             routesFound: true,
-            addedMarkerIds: new Set()
+
+            filteredRoutes: [],
+            newRoutesToSave: []
         }
     },
     beforeMount() {
@@ -25,6 +28,12 @@ export default {
                 if (done) {
                     const str = new TextDecoder().decode(data[0]);
                     this.allRoutes = JSON.parse(str);
+                    console.log(this.allRoutes);
+                    // if we sort the routes now, getting the newest and oldest routes will be nicer
+                    // newest routes at the top
+                    this.allRoutes.sort(function(a,b){
+                        return new Date(b.RouteCreatedAt) - new Date(a.RouteCreatedAt);
+                    });
                     console.log(this.allRoutes);
                     // this.allRoutes is a proxy array
                     return;
@@ -44,16 +53,26 @@ export default {
                     this.filteredRoutes.push(route);
                 }
             });
+            this.newRoutesToSave.forEach(route=> {
+                if ((!this.RouteHoldColourSelected && this.RouteGradeRangeSelected) && (route.RouteGradeRange === this.RouteGradeRangeSelected)){
+                    this.filteredRoutes.push(route);
+                } else if ((!this.RouteGradeRangeSelected && this.RouteHoldColourSelected) && (route.RouteColour === this.RouteHoldColourSelected)){
+                    this.filteredRoutes.push(route);
+                } else if ((route.RouteColour === this.RouteHoldColourSelected) && (route.RouteGradeRange === this.RouteGradeRangeSelected)){
+                    this.filteredRoutes.push(route);
+                }
+            });
             if(this.filteredRoutes.length > 0) {
                 this.routesFound = true;
             } else {
                 this.routesFound = false;
             }
         },
-        addSelectedMarker(id) {
-            this.addedMarkerIds.add(id);
-            console.log("send marker ids to the backend");
-            console.log(this.addedMarkerIds);
+        staffAddNewRoute(newRoute){
+            this.newRoutesToSave.push(newRoute);
+        },
+        logSelectedRouteForUser(id) {
+          
         }
     },
     watch : {
@@ -61,6 +80,9 @@ export default {
             this.FilterRoutes();
         },
         RouteHoldColourSelected(){
+            this.FilterRoutes();
+        },
+        newRoutesToSave(){
             this.FilterRoutes();
         }
     }
@@ -75,14 +97,12 @@ export default {
         <div class="TrackRoutesMapContainer">
             <ImageMarker
                 :filteredRoutes = this.filteredRoutes
-                @selectMarker="addSelectedMarker"
+                :newRoutes = this.newRoutesToSave
+                @newMarker="staffAddNewRoute"
+                @logSelectedRouteForUser="logSelectedRouteForUser"
             />
         </div>
-        <!-- ONLY STAFF USERS SHOULD HAVE THIS SECTION -->
-        <div class="AddRouteData"> 
-            <div>TO ADD NEW ROUTE, SELECT LOCATION ON MAP</div>
-        </div>
-        <!--  -->
+        
         <div class="ChangeRoutesData">
             <div class="RoutesTrackedContainer">
                 <div class="RoutesTrackedList">
@@ -109,6 +129,32 @@ export default {
                 </div>
             </div>
         </div>
+        <div>
+            CURRENT ROUTES (newest first):
+            <BListGroup>
+                <BListGroupItem v-for="route in this.allRoutes">
+                    {{ route }}
+                </BListGroupItem>
+            </BListGroup>
+        </div>
+        <!-- FOR STAFF ONLY -->
+        <div class="AddRouteData"> 
+            <div>TO ADD NEW ROUTE, SELECT LOCATION ON MAP</div>
+        </div>
+        <div>
+            New Routes add that have yet to be saved:
+            <div>
+                {{ this.newRoutesToSave }}
+            </div>
+        </div>
+        <!-- ------------- -->
+
+        <!-- FOR CUSTOMERS ONLY -->
+        <div>
+            ROUTES TRACKED
+        </div>
+        <div> Existing climbs that have been sent by user</div>
+        <!-- ------------- -->
     </div>
 </template>
 <style>

@@ -20,8 +20,7 @@ class RouteSerializer(serializers.ModelSerializer):
             "RouteLocationYAxis",
             "RouteColour",
             "RouteGradeRange",
-            "RouteCreatedAt",
-            "RouteDestroyedAt"
+            "RouteCreatedAt"
         )
 
 class ClimbingUserRouteSerializer(serializers.ModelSerializer):

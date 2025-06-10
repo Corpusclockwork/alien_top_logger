@@ -1,10 +1,13 @@
 <script setup>
-import UserTrackRoutes from './components/UserTrackRoutes.vue'
+    import { RouterView } from 'vue-router';
 </script>
 
 <template>
-  <UserTrackRoutes/>
+  <nav>
+    <RouterLink to="/">Go to Home</RouterLink>
+    <RouterLink to="/usertrackroutes">Go to Track Routes</RouterLink>
+  </nav>
+
+  <RouterView/>
 </template>
 
-<style scoped>
-</style>

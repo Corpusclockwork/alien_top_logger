@@ -1,24 +1,24 @@
 <script>
 import AddRouteModal from './AddRouteModal.vue';
-import { ref, onMounted } from 'vue';
-const root = ref(null);
+import MarkerSelectedModal from './MarkerSelectedModal.vue';
 export default {
     name: 'ImageMarker',
     data: function () {
         return {
-            markers: [],
-            newMarkers: [],
+            markers: [],      
             newMarkerX: null,
             newMarkerY: null,
-            showModal: false,
+
+            showAddRouteModal: false,
+            showMarkerSelectedModal: false
         }
     },
     props: {
-        filteredRoutes: Array
+        filteredRoutes: Array,
+        newRoutes: Array
     },
     methods: {
         generateMarkers() {
-            // I should go back and make the markers generate while the filters are being changed 
             this.markers = [] ;
             this.filteredRoutes.forEach(route => {
                 this.markers.push(
@@ -26,8 +26,8 @@ export default {
                         id: route.RouteId, 
                         colour: route.RouteColour, 
                         grade: route.RouteGradeRange, 
-                        x: route.RouteLocationXAxis * 0.1, //update when backend fixed
-                        y: route.RouteLocationYAxis * 0.1 //update when backend fixed
+                        x: Number(route.RouteLocationXAxis),
+                        y: Number(route.RouteLocationYAxis)
                     }
                 )
             });
@@ -38,19 +38,16 @@ export default {
             };
             this.newMarkerX = roundNumber((event.offsetX / document.getElementById('Alienbloc_shape_id').width) * 100);
             this.newMarkerY = roundNumber((event.offsetY / document.getElementById('Alienbloc_shape_id').height) * 100);
-            this.showModal = true;
+            this.showAddRouteModal = true;
         },
         createNewRoute(newRouteObject){
-            this.newMarkers.push(
-                {       
-                    colour: newRouteObject.hold_colour, 
-                    grade: newRouteObject.grade_range, 
-                    x: this.newMarkerX,
-                    y: this.newMarkerY
-                }
-            );
-            console.log(this.newMarkers);
-            this.showModal=false;
+            this.showAddRouteModal=false;
+            this.$emit('newMarker', {       
+                    RouteColour: newRouteObject.hold_colour, 
+                    RouteGradeRange: newRouteObject.grade_range, 
+                    RouteLocationXAxis: this.newMarkerX,
+                    RouteLocationYAxis: this.newMarkerY
+                });
             // I mean, kind of not needed but it feels like it makes things neater
             this.newMarkerX  = null;
             this.newMarkerY = null;
@@ -58,9 +55,12 @@ export default {
         },
         cancelNewRouteAdded(){
             // I mean, kind of not needed but it feels like it makes things neater
-            this.showModal=false;
+            this.showAddRouteModal=false;
             this.newMarkerX  = null;
             this.newMarkerY = null;
+        },
+        markerSelected(){
+            this.showMarkerSelectedModal=true;
         }
     },
     watch : {
@@ -71,39 +71,46 @@ export default {
 }
 </script>
 <template>
-<div ref="root"> 
+<div> 
     <div class="ImageMarkerContainer">
-        <div class="ImageMarkerImageClass">
+        <div>
             <img
+                class="ImageMarkerImageClass"
                 id="Alienbloc_shape_id"
                 src="/Alienbloc_shape.png"
                 alt= "Alien bloc"
                 @click="AddMarker"
             />
+            <div v-for="marker in this.markers">
+                <Marker
+                    @click="markerSelected"
+                    :id = marker.id
+                    :x_percentage = marker.x
+                    :y_percentage = marker.y
+                    :hold_colour = marker.colour
+                />
+            </div>
         </div>
     </div>
     <AddRouteModal
-        v-if="showModal"
+        v-if="showAddRouteModal"
         :markerX= "newMarkerX"
         :markerY="newMarkerY"
         @on-ok="createNewRoute"
-        @on-cancel="cancelNewRouteAdded"
-        
+        @on-cancel="cancelNewRouteAdded"  
     />
-    <div v-for="marker in this.markers">
-        <Marker
-            @click="$emit('selectMarker', marker.id)"
-            :id = marker.id
-            :x_percentage = marker.x
-            :y_percentage = marker.y
-            :hold_colour = marker.colour
-        />
-    </div>
+    <MarkerSelectedModal
+        v-if="showMarkerSelectedModal"
+        :marker="this.markers[0]" 
+    />
 </div>
 </template>
 <style>
 .ImageMarkerContainer {
     width: 100%;
     position: relative;
+}
+.ImageMarkerImageClass {
+    width: 100%;
 }
 </style>

@@ -1,10 +1,11 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+import datetime
 
 class Route(models.Model):
     RouteId = models.AutoField(primary_key=True)
-    RouteLocationXAxis = models.PositiveIntegerField()
-    RouteLocationYAxis = models.PositiveIntegerField()
+    RouteLocationXAxis = models.DecimalField(decimal_places=2, max_digits=4, default=0)
+    RouteLocationYAxis = models.DecimalField(decimal_places=2, max_digits=4, default=0)
     class RouteColourClass(models.TextChoices):
         RED = "RED", _("RED")
         BLUE = "BLUE", _("BLUE")
@@ -23,8 +24,12 @@ class Route(models.Model):
         choices=RouteGradeRangeClass.choices,
         default=RouteGradeRangeClass.V0V2
     )
-    RouteCreatedAt = models.DateField()
-    RouteDestroyedAt = models.DateField()
+    RouteCreatedAt = models.DateField(default=datetime.date.today)
+    # I was going to have a RouteDestroyedAt datefiles, but once a route is down, it never goes back up and never can, there really is not a point
+    # to storing that information. Might as well try to use db space well
+
+    def __str__(self):
+        return 'Route' + str(self.RouteId)
 
 class ClimbingUser(models.Model):
     ClimbingUserId = models.AutoField(primary_key=True)
@@ -32,6 +37,7 @@ class ClimbingUser(models.Model):
     ClimbingUserPassword = models.CharField(max_length=50)
     ClimbingUserCreatedAt= models.DateTimeField(auto_now_add=True)
     RoutesClimbedByUser = models.ManyToManyField(Route, through='ClimbingUserRoute')
+    IsStaffUser= models.BooleanField(default=False)
 
     def __str__(self):
         return self.ClimbingUserName
@@ -40,3 +46,6 @@ class ClimbingUserRoute(models.Model):
     ClimbingUserId = models.ForeignKey(ClimbingUser, on_delete=models.CASCADE)
     RouteId = models.ForeignKey(Route, on_delete=models.CASCADE)
     DateSent = models.DateField()
+
+    def __str__(self):
+        return 'User' + self.ClimbingUserId + '_' + 'Route' + str(self.RouteId)
