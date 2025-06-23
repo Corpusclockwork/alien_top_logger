@@ -28,7 +28,7 @@ class RouteList(APIView):
         serializer = RouteSerializer(routes, many=True)
         return Response(serializer.data)
     
-class ClimbingUserRoute(APIView):
+class ClimbingUserRouteList(APIView):
     permission_classes = (AllowAny,)
     def get(self, request, format=None):
         ClimbingUserRoutes = ClimbingUserRoute.objects.all()

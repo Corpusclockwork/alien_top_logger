@@ -49,11 +49,12 @@ export default {
     <BModal 
         @ok="$emit('on-ok', newRouteObject)"
         @cancel="$emit('on-cancel')"
+        @close="$emit('on-cancel')"
         id="add-marker"
         :visible="true"
         :ok-disabled="okDisabled"
-    > 
-        <form ref="form" @submit.stop.prevent="handleSubmit">
+        title="Add Route"
+    >
             <BFormGroup
                 label="Grade"
                 label-for="grade-input"
@@ -84,6 +85,5 @@ export default {
                 <div> {{markerX}} </div>
                 <div> {{markerY}} </div>
             </div>
-        </form>
     </BModal>
 </template>

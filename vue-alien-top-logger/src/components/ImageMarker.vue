@@ -1,6 +1,6 @@
 <script>
 import AddRouteModal from './AddRouteModal.vue';
-import MarkerSelectedModal from './MarkerSelectedModal.vue';
+import EditRouteModalModal from './EditRouteModal.vue';
 export default {
     name: 'ImageMarker',
     data: function () {
@@ -8,9 +8,10 @@ export default {
             markers: [],      
             newMarkerX: null,
             newMarkerY: null,
+            selectedMarker: undefined,
 
             showAddRouteModal: false,
-            showMarkerSelectedModal: false
+            showEditRouteModal: false
         }
     },
     props: {
@@ -59,8 +60,18 @@ export default {
             this.newMarkerX  = null;
             this.newMarkerY = null;
         },
-        markerSelected(){
-            this.showMarkerSelectedModal=true;
+        editRoute(route){
+            this.showEditRouteModal=false;
+            this.this.selectedMarker = undefined;
+        },
+        cancelEditRoute(route) {
+            this.showEditRouteModal=false;
+            this.selectedMarker = undefined;
+        },
+        markerSelected(marker){
+            this.showEditRouteModal=true;
+            this.selectedMarker = marker;
+            console.log(this.selectedMarker);
         }
     },
     watch : {
@@ -83,7 +94,7 @@ export default {
             />
             <div v-for="marker in this.markers">
                 <Marker
-                    @click="markerSelected"
+                    @click="markerSelected(marker)"
                     :id = marker.id
                     :x_percentage = marker.x
                     :y_percentage = marker.y
@@ -99,9 +110,13 @@ export default {
         @on-ok="createNewRoute"
         @on-cancel="cancelNewRouteAdded"  
     />
-    <MarkerSelectedModal
-        v-if="showMarkerSelectedModal"
-        :marker="this.markers[0]" 
+    <EditRouteModal
+        v-if="showEditRouteModal"
+        :marker="this.selectedMarker" 
+        :hasBeenSaved="this.selectedMarker.id !== undefined" 
+        :climbedByUser="false"
+        @on-ok="editRoute"
+        @on-cancel="cancelEditRoute"  
     />
 </div>
 </template>
