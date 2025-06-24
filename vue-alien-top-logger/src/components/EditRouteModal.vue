@@ -4,83 +4,77 @@ export default {
     name: "EditRouteModal",
     data: function(){
         return {
-            destroyRoute: false,
+            destroyRouteLocal: false,
             climbedByUserLocal: undefined,
-            hasBeenSavedLocal: undefined
         }
+    },
+    components: {
+        Marker
     },
     props: {
         marker: Marker,
-        hasBeenSaved: Boolean,
-        climbedByUser: Boolean
+        climbedByUser: Boolean,
+        destroyRoute: Boolean
     },
     mounted() {
         this.climbedByUserLocal = this.climbedByUser;
-        this.hasBeenSavedLocal = this.hasBeenSaved;
+        this.destroyRouteLocal = this.destroyRoute;
     },
     watch: {
-      
-    },
-    methods: {
-     
+        marker(){
+            this.climbedByUserLocal = this.climbedByUser;
+            this.destroyRouteLocal = this.destroyRoute;
+        }
     }
 }
 </script>
 <template>
-    <BModal
-        id="edit-route"
-        :visible="true"
-        title="Edit Route"
-        @ok="$emit('on-ok', {DestroyRoute, HasBeenSaved, ClimbedByUser})"
-        @cancel="$emit('on-cancel')"
-        @close="$emit('on-cancel')"
-    >
-        <!-- BOTH 
-            location x
-            location y
-            created at 
-        -->
-
-         <!-- CUSTOMER
-            add to list of climbed by user routes ? 
-        -->
-
-         <!-- STAFF
-            sent to db yes/no
-            destroy route ?
-        -->
-
-        <form>
-            <BFormGroup>
-                <BFormCheckbox
-                    id="add-marker"
-                    v-model="climbedByUserLocal" 
-                    switch
-                >
-                    Sent By User?
-                </BFormCheckbox>
-                <BFormCheckbox
-                    id="saved-route"
-                    v-model="hasBeenSavedLocal" 
-                    :switch=true
-                >
-                    Saved in the Database ?
-                </BFormCheckbox>
-                <BFormCheckbox switch
-                    id="destroy-route"
-                    v-model="destroyRoute" 
-                    
-                >
-                    Destroy selected Route ?
-                </BFormCheckbox>
-            </BFormGroup>
-            <div>LOCATION
-                <div> {{marker.RouteLocationX}} </div>
-                <div> {{marker.RouteLocationX}} </div>
+<div
+    class="modal fade"
+    tabindex="-1" 
+    role="dialog"
+    id="edit-route"
+>
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Route</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
             </div>
-        </form>
-    </BModal>
+            <div class="modal-body">
+                <form>
+                    <div class="form-row" >
+                        <p class="font-weight-bold"> Route Location: {{marker.x}}, {{marker.y}} </p>
+                    </div>
+                    <div class="form-row" >
+                        <p class="font-weight-bold"> Route Id: {{marker.id}} </p>
+                    </div>
+                    <div class="form-row" >
+                        <p class="font-weight-bold"> Route Grade Range: {{marker.grade}} </p>
+                    </div>
+                    <div class="form-row" >
+                        <p class="font-weight-bold"> Route Grade Hold Colour: {{marker.colour}} </p>
+                    </div>
+                    <div class="custom-control custom-switch">
+                        <input class="custom-control-input" type="checkbox" role="switch" id="climbedByUserLocal" v-model="climbedByUserLocal" />
+                        <label class="custom-control-label" for="climbedByUserLocal">Climbed by you ?</label>
+                    </div>
 
+                    <div class="custom-control custom-switch">
+                        <input class="custom-control-input" type="checkbox" role="switch" id="destroyRoute" v-model="destroyRouteLocal" />
+                        <label class="custom-control-label" for="destroyRoute">Destroy selected Route ?</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal" @click="$emit('on-ok', {climbedByUserLocal, destroyRouteLocal});" >Save Route</button>
+            </div>
+        </div>
+    </div>
+</div>
 </template>
 <style>
 

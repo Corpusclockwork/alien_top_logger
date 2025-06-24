@@ -1,6 +1,7 @@
 <script>
 import AddRouteModal from './AddRouteModal.vue';
-import EditRouteModalModal from './EditRouteModal.vue';
+import EditRouteModal from './EditRouteModal.vue';
+import Marker from './Marker.vue';
 export default {
     name: 'ImageMarker',
     data: function () {
@@ -8,15 +9,19 @@ export default {
             markers: [],      
             newMarkerX: null,
             newMarkerY: null,
-            selectedMarker: undefined,
-
-            showAddRouteModal: false,
-            showEditRouteModal: false
+            selectedRoute: null,
         }
+    },
+    components: {
+        AddRouteModal,
+        EditRouteModal,
+        Marker
     },
     props: {
         filteredRoutes: Array,
-        newRoutes: Array
+        newRoutes: Array,
+        routesClimbedByUser: Array,
+        routesToDeleteFromDatabase: Array
     },
     methods: {
         generateMarkers() {
@@ -33,17 +38,15 @@ export default {
                 )
             });
         },
-        AddMarker(event) {
+        setNewRouteLocation(event) {
             function roundNumber(x){
                 return Math.round(x*100)/100
             };
             this.newMarkerX = roundNumber((event.offsetX / document.getElementById('Alienbloc_shape_id').width) * 100);
             this.newMarkerY = roundNumber((event.offsetY / document.getElementById('Alienbloc_shape_id').height) * 100);
-            this.showAddRouteModal = true;
         },
         createNewRoute(newRouteObject){
-            this.showAddRouteModal=false;
-            this.$emit('newMarker', {       
+            this.$emit('staffAddNewRoute', {   
                     RouteColour: newRouteObject.hold_colour, 
                     RouteGradeRange: newRouteObject.grade_range, 
                     RouteLocationXAxis: this.newMarkerX,
@@ -56,22 +59,18 @@ export default {
         },
         cancelNewRouteAdded(){
             // I mean, kind of not needed but it feels like it makes things neater
-            this.showAddRouteModal=false;
             this.newMarkerX  = null;
             this.newMarkerY = null;
         },
-        editRoute(route){
-            this.showEditRouteModal=false;
-            this.this.selectedMarker = undefined;
+        editRoute(routeStats){
+            this.$emit('staffEditRoute', {destroyRoute: routeStats.destroyRouteLocal, id: this.selectedRoute.id});
+            this.$emit('customerEditRoute', {climbedByUser: routeStats.climbedByUserLocal, id: this.selectedRoute.id});
         },
-        cancelEditRoute(route) {
-            this.showEditRouteModal=false;
-            this.selectedMarker = undefined;
+        cancelEditRoute() {
+            this.selectedRoute = null;
         },
         markerSelected(marker){
-            this.showEditRouteModal=true;
-            this.selectedMarker = marker;
-            console.log(this.selectedMarker);
+            this.selectedRoute = marker;
         }
     },
     watch : {
@@ -90,11 +89,15 @@ export default {
                 id="Alienbloc_shape_id"
                 src="/Alienbloc_shape.png"
                 alt= "Alien bloc"
-                @click="AddMarker"
+                @click="setNewRouteLocation"
+                data-toggle="modal" 
+                data-target="#add-route"
             />
             <div v-for="marker in this.markers">
                 <Marker
                     @click="markerSelected(marker)"
+                    data-toggle="modal" 
+                    data-target="#edit-route"
                     :id = marker.id
                     :x_percentage = marker.x
                     :y_percentage = marker.y
@@ -104,17 +107,16 @@ export default {
         </div>
     </div>
     <AddRouteModal
-        v-if="showAddRouteModal"
         :markerX= "newMarkerX"
         :markerY="newMarkerY"
         @on-ok="createNewRoute"
         @on-cancel="cancelNewRouteAdded"  
     />
     <EditRouteModal
-        v-if="showEditRouteModal"
-        :marker="this.selectedMarker" 
-        :hasBeenSaved="this.selectedMarker.id !== undefined" 
-        :climbedByUser="false"
+        v-if="this.selectedRoute"
+        :marker="this.selectedRoute" 
+        :climbedByUser="this.routesClimbedByUser.includes(this.selectedRoute.id)"
+        :destroyRoute="this.routesToDeleteFromDatabase.includes(this.selectedRoute.id)"
         @on-ok="editRoute"
         @on-cancel="cancelEditRoute"  
     />

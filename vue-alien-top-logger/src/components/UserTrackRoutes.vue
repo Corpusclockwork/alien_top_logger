@@ -1,7 +1,5 @@
 <script>
-import { BListGroup } from 'bootstrap-vue-next';
 import ImageMarker from './ImageMarker.vue';
-import { BListGroupItem } from 'bootstrap-vue-next';
 export default {
     name: 'UserTrackRoutes',
     data: function () {
@@ -11,9 +9,15 @@ export default {
             RouteHoldColourSelected: null,
             routesFound: true,
 
+            routesClimbedByUser: [], // will need to populate this from the backend at some point 
+            routesToDeleteFromDatabase: [],
+
             filteredRoutes: [],
             newRoutesToSave: []
         }
+    },
+    components: {
+        ImageMarker
     },
     beforeMount() {
         this.getRoutes()
@@ -28,7 +32,6 @@ export default {
                 if (done) {
                     const str = new TextDecoder().decode(data[0]);
                     this.allRoutes = JSON.parse(str);
-                    console.log(this.allRoutes);
                     // if we sort the routes now, getting the newest and oldest routes will be nicer
                     // newest routes at the top
                     this.allRoutes.sort(function(a,b){
@@ -69,10 +72,34 @@ export default {
             }
         },
         staffAddNewRoute(newRoute){
+            // generate a new id for the route (negative)
+            newRoute.RouteId = -(this.newRoutesToSave.length + 1);
             this.newRoutesToSave.push(newRoute);
+            this.FilterRoutes();
+        }, 
+        staffEditRoute(destroyRouteObject){
+            if (destroyRouteObject.id < 0) {
+                const indexOfRouteToRemove = this.newRoutesToSave.indexOf((route) => route.RouteId === destroyRouteObject.id);
+                // delete fr fr rn as the route doesn't exist in the backend yet
+                this.newRoutesToSave.splice(indexOfRouteToRemove, 1);   
+                // since something has changed that the user can see on the image, we should filter again 
+                this.FilterRoutes(); 
+            } else {
+                if(destroyRouteObject.destroyRoute) {
+                    this.routesToDeleteFromDatabase.push(destroyRouteObject.id)
+                } else {
+                    const indexOfRouteToRemove = this.routesToDeleteFromDatabase.indexOf((routeId) => routeId === destroyRouteObject.id);
+                    this.routesToDeleteFromDatabase.splice(indexOfRouteToRemove, 1); 
+                }  
+            }
         },
-        logSelectedRouteForUser(id) {
-          
+        customerEditRoute(customerEditRouteObject){
+            if(customerEditRouteObject.climbedByUser){
+                this.routesClimbedByUser.push(customerEditRouteObject.id);
+            } else {
+                const indexOfRouteToRemove = this.routesClimbedByUser.indexOf((route) => route.id === customerEditRouteObject.id);
+                this.routesClimbedByUser.splice(indexOfRouteToRemove, 1);
+            }
         }
     },
     watch : {
@@ -80,9 +107,6 @@ export default {
             this.FilterRoutes();
         },
         RouteHoldColourSelected(){
-            this.FilterRoutes();
-        },
-        newRoutesToSave(){
             this.FilterRoutes();
         }
     }
@@ -98,8 +122,11 @@ export default {
             <ImageMarker
                 :filteredRoutes = this.filteredRoutes
                 :newRoutes = this.newRoutesToSave
-                @newMarker="staffAddNewRoute"
-                @logSelectedRouteForUser="logSelectedRouteForUser"
+                :routesClimbedByUser = this.routesClimbedByUser
+                :routesToDeleteFromDatabase = this.routesToDeleteFromDatabase
+                @staffAddNewRoute="staffAddNewRoute"
+                @staffEditRoute="staffEditRoute"
+                @customerEditRoute="customerEditRoute"
             />
         </div>
         
@@ -131,11 +158,11 @@ export default {
         </div>
         <div>
             CURRENT ROUTES (newest first):
-            <BListGroup>
-                <BListGroupItem v-for="route in this.allRoutes">
+            <div>
+                <div v-for="route in this.allRoutes">
                     {{ route }}
-                </BListGroupItem>
-            </BListGroup>
+                </div>
+            </div>
         </div>
         <!-- FOR STAFF ONLY -->
         <div class="AddRouteData"> 
@@ -154,6 +181,7 @@ export default {
             ROUTES TRACKED
         </div>
         <div> Existing climbs that have been sent by user</div>
+        {{ routesClimbedByUser }}
         <!-- ------------- -->
     </div>
 </template>

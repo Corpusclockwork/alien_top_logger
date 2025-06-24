@@ -1,7 +1,4 @@
 <script>
-
-import { BFormInput } from 'bootstrap-vue-next';
-import { BForm } from 'bootstrap-vue-next';
 export default {
     name: 'UserTrackRoutes',
     data: function () {
@@ -9,7 +6,7 @@ export default {
             username: null,
             password: null
         }
-    }
+    },
 }
 </script>
 
@@ -17,25 +14,12 @@ export default {
     <div>
         Login Page
     </div>
-    <div class="form-check">
-  <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
-  <label class="form-check-label" for="defaultCheck1">
-    Default checkbox
-  </label>
-</div>
-    <BForm>
-        <BFormInput>
-            id="username"
-            v-model="username"
-            required
-        </BFormInput>
-        <BFormInput>
-            id="password"
-            v-model="password"
-            required
-        </BFormInput>
-    </BForm>
-    <div>
-        LOGIN
+    <div class="flex items-center gap-4 mb-4">
+        <label for="username" class="font-semibold w-24">Username</label>
+        <input type="username" class="form-control" id="usernameinput" aria-describedby="userHelp" placeholder="Enter username">
+    </div>
+    <div class="flex items-center gap-4 mb-2">
+        <label for="email" class="font-semibold w-24">Email</label>
+        <input type="email" class="form-control" id="emailinput" aria-describedby="emailHelp" placeholder="Enter email">
     </div>
 </template>
