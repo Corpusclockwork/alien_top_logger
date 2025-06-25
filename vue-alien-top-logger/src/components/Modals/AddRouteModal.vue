@@ -42,46 +42,26 @@ export default {
                 <form>
                     <div class="form-row" >
                         <div class="col">
-                            <p class="font-weight-bold"> Route Location: {{markerX}}, {{markerY}} </p>
+                            <p> Route Location: <span class="font-weight-bold">{{markerX}}, {{markerY}}</span></p>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="col">
-                            <div> Route Grade : {{ newRouteGradeRange }}</div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" id="V0-V2" value="V0-V2" v-model="newRouteGradeRange" required/>
-                                <label class="form-check-label" for="V0-V2">V0-V2</label>
-                            </div>
-
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" id="V1-V3" value="V1-V3" v-model="newRouteGradeRange" required/>
-                                <label class="form-check-label" for="V1-V3">V1-V3</label>
-                            </div>
-
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" id="V2-V4" value="V2-V4" v-model="newRouteGradeRange" required/>
-                                <label class="form-check-label" for="V2-V4">V2-V4</label>
-                            </div>
+                            <div> Route Grade:</div>
+                             <select class="form-select" id="newRouteGradeRange" v-model="newRouteGradeRange" required>
+                                <option  value='V0-V2'>V0-V2</option>
+                                <option value="V1-V3">V1-V3</option>
+                                <option value="V2-V4">V2-V4</option>
+                            </select>
                             <div v-if="this.newRouteGradeRange === null" class="invalid-feedback d-block">Please select a Grade</div>
-                            
                         </div>
-
                         <div class="col">
-                            <div> Hold Colour : {{ newRouteHoldColour }}</div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" id="RED" value="RED" v-model="newRouteHoldColour" required/>
-                                <label class="form-check-label" for="RED">RED</label>
-                            </div>
-
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" id="GREEN" value="GREEN" v-model="newRouteHoldColour" required/>
-                                <label class="form-check-label" for="GREEN">GREEN</label>
-                            </div>
-
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" id="BLUE" value="BLUE" v-model="newRouteHoldColour" required/>
-                                <label class="form-check-label" for="BLUE">BLUE</label>
-                            </div>
+                            <div> Hold Colour:</div>
+                            <select class="form-select" id="newRouteHoldColour" v-model="newRouteHoldColour" required>
+                                <option value="RED">RED</option>
+                                <option value="BLUE">BLUE</option>
+                                <option value="GREEN">GREEN</option>
+                            </select>
                             <div v-if="this.newRouteHoldColour === null" class="invalid-feedback d-block">Please select a Hold Colour</div>
                         </div>
                     </div>

@@ -4,8 +4,8 @@
 
 <template>
   <nav>
-    <RouterLink to="/">Go to Home</RouterLink>
-    <RouterLink to="/usertrackroutes">Go to Track Routes</RouterLink>
+    <RouterLink to="/">Go to Login page</RouterLink>
+    <RouterLink to="/usertrackroutes">Go to Main page</RouterLink>
   </nav>
 
   <RouterView/>

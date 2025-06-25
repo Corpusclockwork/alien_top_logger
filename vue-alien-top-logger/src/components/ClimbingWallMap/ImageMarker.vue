@@ -1,6 +1,6 @@
 <script>
-import AddRouteModal from './AddRouteModal.vue';
-import EditRouteModal from './EditRouteModal.vue';
+import AddRouteModal from '../Modals/AddRouteModal.vue';
+import EditRouteModal from '../Modals/EditRouteModal.vue';
 import Marker from './Marker.vue';
 export default {
     name: 'ImageMarker',
@@ -21,7 +21,8 @@ export default {
         filteredRoutes: Array,
         newRoutes: Array,
         routesClimbedByUser: Array,
-        routesToDeleteFromDatabase: Array
+        routesToDeleteFromDatabase: Array,
+        isStaffUser: Boolean
     },
     methods: {
         generateMarkers() {
@@ -39,8 +40,11 @@ export default {
             });
         },
         setNewRouteLocation(event) {
+            if(!this.isStaffUser) {
+                return;
+            }
             function roundNumber(x){
-                return Math.round(x*100)/100
+                return Math.round(x*100)/100;
             };
             this.newMarkerX = roundNumber((event.offsetX / document.getElementById('Alienbloc_shape_id').width) * 100);
             this.newMarkerY = roundNumber((event.offsetY / document.getElementById('Alienbloc_shape_id').height) * 100);
@@ -90,8 +94,8 @@ export default {
                 src="/Alienbloc_shape.png"
                 alt= "Alien bloc"
                 @click="setNewRouteLocation"
-                data-toggle="modal" 
-                data-target="#add-route"
+                :data-toggle="this.isStaffUser ?'modal': ''"
+                :data-target="this.isStaffUser ?'#add-route': ''"
             />
             <div v-for="marker in this.markers">
                 <Marker
@@ -106,14 +110,17 @@ export default {
             </div>
         </div>
     </div>
-    <AddRouteModal
-        :markerX= "newMarkerX"
-        :markerY="newMarkerY"
-        @on-ok="createNewRoute"
-        @on-cancel="cancelNewRouteAdded"  
-    />
+    <div v-if="this.isStaffUser">
+        <AddRouteModal
+            :markerX= "this.newMarkerX"
+            :markerY="this.newMarkerY"
+            @on-ok="createNewRoute"
+            @on-cancel="cancelNewRouteAdded"  
+        />
+    </div>
     <EditRouteModal
         v-if="this.selectedRoute"
+        :isStaffUser="this.isStaffUser"
         :marker="this.selectedRoute" 
         :climbedByUser="this.routesClimbedByUser.includes(this.selectedRoute.id)"
         :destroyRoute="this.routesToDeleteFromDatabase.includes(this.selectedRoute.id)"

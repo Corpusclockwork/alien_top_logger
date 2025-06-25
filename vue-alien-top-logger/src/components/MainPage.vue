@@ -1,25 +1,29 @@
 <script>
-import ImageMarker from './ImageMarker.vue';
+import ImageMarker from './ClimbingWallMap/ImageMarker.vue';
 export default {
-    name: 'UserTrackRoutes',
+    name: 'MainPage',
     data: function () {
         return {
+            isStaffUser: true, // TWEAK THIS FOR QUICK TESTING
             allRoutes: undefined,
             RouteGradeRangeSelected: null,
             RouteHoldColourSelected: null,
             routesFound: true,
-
+            // Users
             routesClimbedByUser: [], // will need to populate this from the backend at some point 
+            // Staff
             routesToDeleteFromDatabase: [],
+            newRoutesToSave: [],
 
-            filteredRoutes: [],
-            newRoutesToSave: []
+            filteredRoutes: []
+            
         }
     },
     components: {
         ImageMarker
     },
     beforeMount() {
+        // get user details (from props maybe) and check if the current user is a staff user
         this.getRoutes()
     },
     methods: {
@@ -32,7 +36,6 @@ export default {
                 if (done) {
                     const str = new TextDecoder().decode(data[0]);
                     this.allRoutes = JSON.parse(str);
-                    // if we sort the routes now, getting the newest and oldest routes will be nicer
                     // newest routes at the top
                     this.allRoutes.sort(function(a,b){
                         return new Date(b.RouteCreatedAt) - new Date(a.RouteCreatedAt);
@@ -82,7 +85,7 @@ export default {
                 const indexOfRouteToRemove = this.newRoutesToSave.indexOf((route) => route.RouteId === destroyRouteObject.id);
                 // delete fr fr rn as the route doesn't exist in the backend yet
                 this.newRoutesToSave.splice(indexOfRouteToRemove, 1);   
-                // since something has changed that the user can see on the image, we should filter again 
+                // since something has changed that the user can see on the climbing wall map, we should filter again 
                 this.FilterRoutes(); 
             } else {
                 if(destroyRouteObject.destroyRoute) {
@@ -112,94 +115,93 @@ export default {
     }
 }
 </script>
-
 <template>
-    <div class="UserTrackRoutes">
-        <div class="TrackRoutesHeader">
+    <div class="MainPage">
+        <div v-if="!isStaffUser" class="MainPageHeader">
             TRACK ROUTES
         </div>
-        <div class="TrackRoutesMapContainer">
+        <div v-if="isStaffUser" class="MainPageHeader">
+            EDIT ROUTES
+        </div>
+        <div v-if="isStaffUser"class="AddRoute"> 
+            <div>Click on map to add a route</div>
+        </div>
+        <div class="SaveChanges"> 
+            <div>Save changes to the database</div>
+        </div>
+        <div>
             <ImageMarker
                 :filteredRoutes = this.filteredRoutes
                 :newRoutes = this.newRoutesToSave
-                :routesClimbedByUser = this.routesClimbedByUser
                 :routesToDeleteFromDatabase = this.routesToDeleteFromDatabase
+                :routesClimbedByUser = this.routesClimbedByUser
                 @staffAddNewRoute="staffAddNewRoute"
                 @staffEditRoute="staffEditRoute"
                 @customerEditRoute="customerEditRoute"
+                :isStaffUser="this.isStaffUser"
             />
         </div>
-        
-        <div class="ChangeRoutesData">
-            <div class="RoutesTrackedContainer">
-                <div class="RoutesTrackedList">
+        <form> 
+            <div class="row">
+                <div class="col">
+                    <div class="Filters"> 
+                        <div> Apply filters to see routes on the map</div>
+                        <div>Route Grade:</div>
+                        <select class="form-select" id="RouteGradeRange" v-model="RouteGradeRangeSelected">
+                            <option  value='V0-V2'>V0-V2</option>
+                            <option value="V1-V3">V1-V3</option>
+                            <option value="V2-V4">V2-V4</option>
+                        </select>
+                        <div>Route Hold Colour:</div>
+                        <select class="form-select" id="RouteHoldColour" v-model="RouteHoldColourSelected">
+                            <option value="RED">RED</option>
+                            <option value="BLUE">BLUE</option>
+                            <option value="GREEN">GREEN</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col">
+                    <div v-if=" !isStaffUser">
+                        Routes climbed By You:
+                        <div>
+                            {{ this.routesClimbedByUser }}
+                        </div>
+                    </div>
+                    <div v-if="isStaffUser">
+                        <div>
+                            Routes <span class="font-weight-bold">added</span> by you just now:
+                            <div>
+                                {{ this.newRoutesToSave }}
+                            </div>
+                        </div>
+                        <div>
+                            Routes <span class="font-weight-bold">deleted</span> by you just now:  
+                            <div>
+                                {{ this.routesToDeleteFromDatabase }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col listOfRoutes" data-bs-spy="scroll">
+                    List of Routes:
+                    <div class="list-group overflow-scroll" v-for="route in this.allRoutes">
+                        <div class="list-group-item"> {{ route }}</div>
+                    </div>
                 </div>
             </div>
-            <div class="Filters"> 
-                <div> APPLY FILTERS</div>
-                <div v-if="!routesFound"> NO ROUTES FOUND</div>
-                <div class="SearchRouteGradeContainer"> 
-                    <div>Grade</div>
-                    <select id="RouteGradeRange" v-model="RouteGradeRangeSelected">
-                        <option  value='V0-V2'>V0-V2</option>
-                        <option value="V1-V3">V1-V3</option>
-                        <option value="V2-V4">V2-V4</option>
-                    </select>
-                </div>
-                <div class="SearchRouteHoldColourContainer">
-                    <div>Hold Colour</div>
-                    <select id="RouteHoldColour" v-model="RouteHoldColourSelected">
-                        <option value="RED">RED</option>
-                        <option value="BLUE">BLUE</option>
-                        <option value="GREEN">GREEN</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-        <div>
-            CURRENT ROUTES (newest first):
-            <div>
-                <div v-for="route in this.allRoutes">
-                    {{ route }}
-                </div>
-            </div>
-        </div>
-        <!-- FOR STAFF ONLY -->
-        <div class="AddRouteData"> 
-            <div>TO ADD NEW ROUTE, SELECT LOCATION ON MAP</div>
-        </div>
-        <div>
-            New Routes add that have yet to be saved:
-            <div>
-                {{ this.newRoutesToSave }}
-            </div>
-        </div>
-        <!-- ------------- -->
-
-        <!-- FOR CUSTOMERS ONLY -->
-        <div>
-            ROUTES TRACKED
-        </div>
-        <div> Existing climbs that have been sent by user</div>
-        {{ routesClimbedByUser }}
-        <!-- ------------- -->
+        </form>
     </div>
 </template>
 <style>
-.UserTrackRoutes {
-    width: 100%;
+.MainPage {
+    margin: 5%;
+    margin-bottom: 0%;
+    border-style: solid;
+    border-width: 2px;
+    border-color: #E13B3B;
+    background-color: white;
 }
-.TrackRoutesMapImage {
-    width: 100%;
-}
-.TrackRoutesHeader {
-    font-family: Arial, Helvetica, sans-serif;
-    color: red;
-}
-.TrackRoutesMap{
-    width: 90%;
-}
-.ImageMarkerClass {
-    width: 100%;
+.listOfRoutes {
+    font-family: "Montserrat", Sans-serif;
 }
 </style>
