@@ -94,14 +94,14 @@ export default {
                 src="/Alienbloc_shape.png"
                 alt= "Alien bloc"
                 @click="setNewRouteLocation"
-                :data-toggle="this.isStaffUser ?'modal': ''"
-                :data-target="this.isStaffUser ?'#add-route': ''"
+                :data-bs-toggle="this.isStaffUser ? 'modal' : ''"
+                :data-bs-target="this.isStaffUser ? '#add-route' : ''"
             />
             <div v-for="marker in this.markers">
                 <Marker
                     @click="markerSelected(marker)"
-                    data-toggle="modal" 
-                    data-target="#edit-route"
+                    data-bs-toggle="modal"
+                    data-bs-target="#edit-route"
                     :id = marker.id
                     :x_percentage = marker.x
                     :y_percentage = marker.y
@@ -119,11 +119,10 @@ export default {
         />
     </div>
     <EditRouteModal
-        v-if="this.selectedRoute"
         :isStaffUser="this.isStaffUser"
-        :marker="this.selectedRoute" 
-        :climbedByUser="this.routesClimbedByUser.includes(this.selectedRoute.id)"
-        :destroyRoute="this.routesToDeleteFromDatabase.includes(this.selectedRoute.id)"
+        :marker="this.selectedRoute? this.selectedRoute : undefined" 
+        :climbedByUser="this.routesClimbedByUser.includes(this.selectedRoute?.id)"
+        :destroyRoute="this.routesToDeleteFromDatabase.includes(this.selectedRoute?.id)"
         @on-ok="editRoute"
         @on-cancel="cancelEditRoute"  
     />
