@@ -133,7 +133,12 @@ export default {
     width: 100%;
     position: relative;
 }
+
 .ImageMarkerImageClass {
     width: 100%;
+    border-width: 1px;
+    border-color: black;
+    border-style: solid;
+
 }
 </style>
