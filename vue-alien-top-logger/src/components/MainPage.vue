@@ -4,11 +4,10 @@ export default {
     name: 'MainPage',
     data: function () {
         return {
-            isStaffUser: true, // TWEAK THIS FOR QUICK TESTING
+            isStaffUser: false, // TWEAK THIS FOR QUICK TESTING
             allRoutes: undefined,
             RouteGradeRangeSelected: null,
             RouteHoldColourSelected: null,
-            routesFound: true,
             // Users
             routesClimbedByUser: [], // will need to populate this from the backend at some point 
             // Staff
@@ -51,9 +50,12 @@ export default {
             this.filteredRoutes = [];
 
             if(routeSelected){
-                this.filteredRoutes = [routeSelected];
+                this.filteredRoutes.push(routeSelected);
+                this.RouteGradeRangeSelected = null;
+                this.RouteHoldColourSelected = null;
+                return;
             }
-
+            
             this.allRoutes.forEach(route => {
                 //ugly but functional
                 if ((!this.RouteHoldColourSelected && this.RouteGradeRangeSelected) && (route.RouteGradeRange === this.RouteGradeRangeSelected)){
@@ -73,21 +75,14 @@ export default {
                     this.filteredRoutes.push(route);
                 }
             });
-            if(this.filteredRoutes.length > 0) {
-                this.routesFound = true;
-            } else {
-                this.routesFound = false;
-            }
         },
         staffAddNewRoute(newRoute){
-            console.log(newRoute);
             // generate a new id for the route (negative)
             newRoute.RouteId = -(this.newRoutesToSave.length + 1);
             this.newRoutesToSave.push(newRoute);
             this.FilterRoutes();
         }, 
         staffEditRoute(destroyRouteObject){
-            console.log(destroyRouteObject);
             if (destroyRouteObject.id < 0) {
                 const indexOfRouteToRemove = this.newRoutesToSave.indexOf((route) => route.RouteId === destroyRouteObject.id);
                 // delete fr fr rn as the route doesn't exist in the backend yet
@@ -105,8 +100,9 @@ export default {
             }
         },
         customerEditRoute(customerEditRouteObject){
+            const routeToTrack = this.allRoutes.find((route) => route.RouteId === customerEditRouteObject.id);
             if(customerEditRouteObject.climbedByUser){
-                this.routesClimbedByUser.push(customerEditRouteObject.id);
+                this.routesClimbedByUser.push(routeToTrack);
             } else {
                 const indexOfRouteToRemove = this.routesClimbedByUser.indexOf((route) => route.id === customerEditRouteObject.id);
                 this.routesClimbedByUser.splice(indexOfRouteToRemove, 1);
@@ -115,10 +111,14 @@ export default {
     },
     watch : {
         RouteGradeRangeSelected() {
-            this.FilterRoutes();
+            if(this.RouteGradeRangeSelected !== null){
+                this.FilterRoutes();
+            }
         },
         RouteHoldColourSelected(){
-            this.FilterRoutes();
+            if(this.RouteHoldColourSelected !== null){
+                this.FilterRoutes();
+            } 
         }
     }
 }
@@ -175,14 +175,25 @@ export default {
                 <div class="mainPageFormSection">
                     <div class="mainPageFormMiddleSection" v-if=" !isStaffUser">
                         Routes climbed By You:
-                        <div>
-                            {{ this.routesClimbedByUser }}
+                        <div v-show="this.routesClimbedByUser.length > 0" class="editRoutesSectionList">
+                            <div class="list-group overflow-scroll" v-for="route in this.routesClimbedByUser">
+                                <div @click="FilterRoutes(route)" class="list-group-item"> 
+                                    <div> {{ route.RouteColour }}</div>
+                                    <div> {{ route.RouteGradeRange }}</div>
+                                    <div> <span class="fw-bold">Location: </span> {{ route.RouteLocationXAxis }}, {{ route.RouteLocationYAxis }}</div>
+                                </div>
+                            </div>
                         </div>
+
+                        <div v-show="this.routesClimbedByUser.length === 0" class="mainPageFormMiddleSectionWarning fw-bold">
+                            No routes tracked by you
+                        </div>
+
                     </div>
                     <div class="mainPageFormMiddleSection" v-if="isStaffUser">
                         <div>
                             Routes <span class="fw-bold">added</span> by you just now:
-                            <div v-show="this.newRoutesToSave.length > 0" class="addedRoutesSectionList">
+                            <div v-show="this.newRoutesToSave.length > 0" class="editRoutesSectionList">
                                 <div class="list-group overflow-scroll" v-for="route in this.newRoutesToSave">
                                     <div @click="FilterRoutes(route)" class="list-group-item"> 
                                         <div> {{ route.RouteColour }}</div>
@@ -198,7 +209,7 @@ export default {
                         </div>
                         <div>
                             Routes <span class="fw-bold">deleted</span> by you just now:  
-                            <div v-show="this.routesToDeleteFromDatabase.length > 0" class="deletedRoutesSectionList">
+                            <div v-show="this.routesToDeleteFromDatabase.length > 0" class="editRoutesSectionList">
                                 <div class="list-group overflow-scroll" v-for="route in this.routesToDeleteFromDatabase">
                                     <div @click="FilterRoutes(route)" class="list-group-item"> 
                                         <div> {{ route.RouteColour }}</div>
@@ -359,21 +370,7 @@ export default {
     margin: 2%;
 }
 
-.deletedRoutesSectionList {
-    height: 100px;
-    overflow:scroll;
-    border-width: 3px;
-    border-radius: 5px;
-    border-color: #E9704B;
-    background-color: white;
-    border-style: solid;
-    scrollbar-color: #E13B3B white;
-    scrollbar-width: medium;
-    margin: 3px;
-   
-}
-
-.addedRoutesSectionList {
+.editRoutesSectionList {
     height: 100px;
     overflow:scroll;
     border-width: 3px;
