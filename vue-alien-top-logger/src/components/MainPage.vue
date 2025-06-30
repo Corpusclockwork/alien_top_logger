@@ -4,7 +4,7 @@ export default {
     name: 'MainPage',
     data: function () {
         return {
-            isStaffUser: false, // TWEAK THIS FOR QUICK TESTING
+            isStaffUser: true, // TWEAK THIS FOR QUICK TESTING
             allRoutes: undefined,
             RouteGradeRangeSelected: null,
             RouteHoldColourSelected: null,
@@ -23,7 +23,7 @@ export default {
     },
     beforeMount() {
         // get user details (from props maybe) and check if the current user is a staff user
-        this.getRoutes()
+        this.getRoutes();
     },
     methods: {
         async getRoutes() {
@@ -45,6 +45,20 @@ export default {
                 }
                 data.push(value);
             }
+        },
+        async setRoutes() {
+            this.newRoutesToSave.forEach((route) => {delete route.RouteId});
+            const response = await fetch("http://127.0.0.1:8000/api/v1/routes/create", {
+                method: "POST",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(this.newRoutesToSave),
+            });
+            this.newRoutesToSave = [];
+            this.RouteGradeRangeSelected = null;
+            this.RouteHoldColourSelected = null;
         },
         FilterRoutes(routeSelected){
             this.filteredRoutes = [];
@@ -132,7 +146,7 @@ export default {
             <div v-if="isStaffUser" class="MainPageHeader">
                 Edit Routes
             </div>
-            <div class="SaveChanges"> 
+            <div @click="setRoutes()"class="SaveChanges"> 
                 <div>Save changes to the database</div>
             </div>
         </div>
@@ -302,6 +316,11 @@ export default {
     border-radius: 5px;
     margin: 2px;
 } 
+
+.SaveChanges:hover {
+    background-color: #882323;
+    cursor: pointer; 
+}
 
 .mainPageBodySection {
     padding: 1%;
