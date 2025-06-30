@@ -46,7 +46,7 @@ export default {
                 data.push(value);
             }
         },
-        async setRoutes() {
+        async saveNewRoutesInDatabase() {
             this.newRoutesToSave.forEach((route) => {delete route.RouteId});
             const response = await fetch("http://127.0.0.1:8000/api/v1/routes/create", {
                 method: "POST",
@@ -54,11 +54,28 @@ export default {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(this.newRoutesToSave),
+                body: JSON.stringify(this.newRoutesToSave)
             });
+        },
+        async deleteRoutesFromDatabase() {
+            const ids = this.routesToDeleteFromDatabase.map(route => route.RouteId);
+            const response = await fetch("http://127.0.0.1:8000/api/v1/routes/delete", {
+                method: "DELETE",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(ids)
+            });
+        },
+        saveToDatabase(){
+            saveNewRoutesInDatabase() ;
+            deleteRoutesFromDatabase();
             this.newRoutesToSave = [];
+            this.routesToDeleteFromDatabase = [];
             this.RouteGradeRangeSelected = null;
             this.RouteHoldColourSelected = null;
+            this.getRoutes();
         },
         FilterRoutes(routeSelected){
             this.filteredRoutes = [];
@@ -146,7 +163,7 @@ export default {
             <div v-if="isStaffUser" class="MainPageHeader">
                 Edit Routes
             </div>
-            <div @click="setRoutes()"class="SaveChanges"> 
+            <div @click="saveToDatabase();"class="SaveChanges"> 
                 <div>Save changes to the database</div>
             </div>
         </div>

@@ -42,7 +42,13 @@ class CreateRoutesList(APIView):
         else:
            #Return validation errors if data is invalid
            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+        
+class DeleteRoutesList(APIView):
+    permission_classes = (AllowAny,)
+    def delete(self, request):
+        Route.objects.filter(RouteId__in=request.data).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+          
 class ClimbingUserRouteList(APIView):
     permission_classes = (AllowAny,)
     def get(self, request, format=None):
