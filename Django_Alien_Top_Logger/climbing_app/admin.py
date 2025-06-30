@@ -1,6 +1,4 @@
 from django.contrib import admin
-from .models import ClimbingUser, Route, ClimbingUserRoute
-
-admin.site.register(ClimbingUser)
+from .models import Route
+# http://127.0.0.1:8000/admin/
 admin.site.register(Route)
-admin.site.register(ClimbingUserRoute)

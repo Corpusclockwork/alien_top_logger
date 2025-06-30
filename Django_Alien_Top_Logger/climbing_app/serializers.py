@@ -1,15 +1,5 @@
 from rest_framework import serializers
-from .models import ClimbingUser, Route, ClimbingUserRoute
-
-class ClimbingUserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ClimbingUser
-        fields = (
-            "ClimbingUserId",
-            "ClimbingUserName",
-            "ClimbingUserPassword",
-            "ClimbingUserCreatedAt"
-        )
+from .models import Route
 
 class RouteSerializer(serializers.ModelSerializer):
     class Meta:
@@ -21,13 +11,4 @@ class RouteSerializer(serializers.ModelSerializer):
             "RouteColour",
             "RouteGradeRange",
             "RouteCreatedAt"
-        )
-
-class ClimbingUserRouteSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ClimbingUserRoute
-        fields = (
-            "ClimbingUserId",
-            "RouteId",
-            "DateSent"
         )

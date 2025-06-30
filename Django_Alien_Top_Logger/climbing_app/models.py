@@ -1,6 +1,41 @@
 from django.db import models
+# from django.contrib.auth.models import Permission
+# from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.models import User, AnonymousUser
 from django.utils.translation import gettext_lazy as _
 import datetime
+
+# class isClimbingStaffMember(Group):
+#     name = "isClimbingStaffMember",
+#     permissions = ['can_add_route', 'can_delete_route'],
+#     class Meta:
+#         content_type = ContentType.objects.get_for_model(User)
+#         permission = Permission.objects.create(
+#             codename="can_add_route",
+#             name="Can add routes",
+#             content_type=content_type,
+#         )
+#         permission = Permission.objects.create(
+#             codename="can_delete_route",
+#             name="Can delete routes",
+#             content_type=content_type,
+#         )
+
+# class isClimbingCustomer(Group):
+#     name = "isClimbingCustomer",
+#     permissions = ['can_track_route'],
+#     class Meta:
+#         content_type = ContentType.objects.get_for_model(User)
+#         permission = Permission.objects.create(
+#             codename="can_track_their_routes",
+#             name="Can track routes that they have climbed",
+#             content_type=content_type,
+#         )
+#         permission = Permission.objects.create(
+#             codename="can_see_their_tracked_routes",
+#             name="Can see the tracked routes that they have climbed",
+#             content_type=content_type,
+#         )
 
 class Route(models.Model):
     RouteId = models.AutoField(primary_key=True)
@@ -25,27 +60,18 @@ class Route(models.Model):
         default=RouteGradeRangeClass.V0V2
     )
     RouteCreatedAt = models.DateField(default=datetime.date.today)
-    # I was going to have a RouteDestroyedAt datefiles, but once a route is down, it never goes back up and never can, there really is not a point
+    RoutesClimbedByUsers = models.ManyToManyField(User)
+
+    class Meta:
+        permissions = [
+            ("can_delete_route", "Can delete route"),
+            ("can_add_route", "Can add route"),
+        ]
+
+    # I was going to have a RouteDestroyedAt datefiles, but once a route is down,
+    # it never goes back up and never can, there really is not a point
     # to storing that information. Might as well try to use db space well
 
     def __str__(self):
-        return 'Route' + str(self.RouteId)
+        return 'Route_' + str(self.RouteId)
 
-class ClimbingUser(models.Model):
-    ClimbingUserId = models.AutoField(primary_key=True)
-    ClimbingUserName = models.CharField(max_length=50)
-    ClimbingUserPassword = models.CharField(max_length=50)
-    ClimbingUserCreatedAt= models.DateTimeField(auto_now_add=True)
-    RoutesClimbedByUser = models.ManyToManyField(Route, through='ClimbingUserRoute')
-    IsStaffUser= models.BooleanField(default=False)
-
-    def __str__(self):
-        return self.ClimbingUserName
-
-class ClimbingUserRoute(models.Model):
-    ClimbingUserId = models.ForeignKey(ClimbingUser, on_delete=models.CASCADE)
-    RouteId = models.ForeignKey(Route, on_delete=models.CASCADE)
-    DateSent = models.DateField()
-
-    def __str__(self):
-        return 'User' + self.ClimbingUserId + '_' + 'Route' + str(self.RouteId)

@@ -19,6 +19,10 @@ export default {
             <label for="username" class="loginPageSectionHeader font-semibold w-24">Username</label>
             <input type="username" class="loginPageSectionText form-control" id="usernameinput" aria-describedby="userHelp" placeholder="Enter username">
         </div>
+         <div class="flex items-center gap-4 mb-2">
+            <label for="email" class="newUserPageSectionHeader font-semibold w-24">Email</label>
+            <input type="email" class="newUserPageSectionText form-control" id="emailinput" aria-describedby="emailHelp" placeholder="Enter email address">
+        </div>
         <div class="flex items-center gap-4 mb-2">
             <label for="password" class="loginPageSectionHeader font-semibold w-24">Password</label>
             <input type="password" class="loginPageSectionText form-control" id="passwordinput" aria-describedby="passwordHelp" placeholder="Enter password">

@@ -6,6 +6,7 @@ import 'bootstrap';
 import { createWebHistory, createRouter } from 'vue-router';
 import Login from './components/LoginPages/Login.vue';
 import MainPage from './components/MainPage.vue';
+import NewUser from './components/LoginPages/NewUser.vue';
 // font-family: "Montserrat", Sans-serif;
 // font-family: "Teko", Sans-serif;
 //background-image: linear-gradient(82deg, var( --e-global-color-primary ) 0%, var( --e-global-color-649cea3 ) 100%);
@@ -19,6 +20,7 @@ import MainPage from './components/MainPage.vue';
 const routes = [
     { path: '/', component: Login },
     { path: '/login', component: Login },
+    { path: '/createnewuser', component: NewUser },
     { path: '/usertrackroutes', component: MainPage }
 ]
 
