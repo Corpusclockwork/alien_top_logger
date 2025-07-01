@@ -8,21 +8,28 @@ from .models import Route
 from .serializers import RouteSerializer
 from django.http.response import JsonResponse
 from django.contrib.auth.models import User, Group
-from django.contrib.auth import authenticate
-# Permissions nomrally enforced in this layer
+from django.contrib.auth import LoginView
+# Permissions normally enforced in this layer
     
 #------- User -----------------------------------------
 class AddUser(APIView):
     permission_classes = (AllowAny,)
     def post(self, request):
-        user = User.objects.create_user(request.data.username, request.data.email, request.data.password)
-        group = Group.objects.get(name = 'isClimbingCustomer')
-        user.groups.add(group)
-        user.save()
-        Response(status=status.HTTP_201_CREATED)
-    
+        try:
+            User.objects.get(username = request.data["username"])
+            return Response(data="Username already exists", status=status.HTTP_403_FORBIDDEN)
+        except:
+            user = User.objects.create_user(request.data["username"], request.data["email"], request.data["password"])
+            if request.data["isClimbingStaffMemberInFrontEnd"] == True :
+                group = Group.objects.get(name = 'isClimbingStaffMember')
+                user.groups.add(group)
+                user.save()
+            return Response(status=status.HTTP_201_CREATED)
+
 # class AuthenticatingUser(APIView):
-#     def get(self, request):
+    
+#     def post(self, request):
+#         LoginView.
 #         user = authenticate(request.username, request.password)
 #         if user is not None:
 #             # A backend authenticated the credentials

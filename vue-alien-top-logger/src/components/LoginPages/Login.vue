@@ -15,7 +15,7 @@ export default {
         <div class="loginPageHeader">
             Login:
         </div>
-        <div class="flex items-center gap-4 mb-4">
+        <div class="flex items-center gap-4 mb-2">
             <label for="username" class="loginPageSectionHeader font-semibold w-24">Username</label>
             <input type="username" class="loginPageSectionText form-control" id="usernameinput" aria-describedby="userHelp" placeholder="Enter username">
         </div>
@@ -27,6 +27,7 @@ export default {
             <label for="password" class="loginPageSectionHeader font-semibold w-24">Password</label>
             <input type="password" class="loginPageSectionText form-control" id="passwordinput" aria-describedby="passwordHelp" placeholder="Enter password">
         </div>
+        <button @click="login()" type="button" class="loginButton btn btn-primary"> Login</button>
     </div>
 </template>
 <style>
@@ -34,7 +35,11 @@ export default {
     margin: 10%;
     line-height: 1;
     border-radius: 5px;
+    margin-bottom: 0;
+    padding-bottom: 10%;
     color: white;
+    font-size: 4rem;
+    display: grid;
 }
 
 .loginPage{
@@ -47,5 +52,21 @@ export default {
 
 .loginPageSectionText {
     font-family: "Montserrat", Sans-serif;
+}
+
+.loginButton {
+    font-size: 2rem;
+    background-color: #E9704B;
+    color: white;
+    border-color: #E9704B;
+    justify-self: center;
+}
+
+.loginButton:disabled {
+    background-color: grey;
+}
+
+.loginButton:hover {
+    background-color: #994931;
 }
 </style>

@@ -48,7 +48,7 @@ export default {
         },
         async saveNewRoutesInDatabase() {
             this.newRoutesToSave.forEach((route) => {delete route.RouteId});
-            const response = await fetch("http://127.0.0.1:8000/api/v1/routes/create", {
+            const response = await fetch("http://127.0.0.1:8000/api/v1/routes/create/", {
                 method: "POST",
                 headers: {
                     'Accept': 'application/json',
@@ -59,7 +59,7 @@ export default {
         },
         async deleteRoutesFromDatabase() {
             const ids = this.routesToDeleteFromDatabase.map(route => route.RouteId);
-            const response = await fetch("http://127.0.0.1:8000/api/v1/routes/delete", {
+            const response = await fetch("http://127.0.0.1:8000/api/v1/routes/delete/", {
                 method: "DELETE",
                 headers: {
                     'Accept': 'application/json',
@@ -163,9 +163,9 @@ export default {
             <div v-if="isStaffUser" class="MainPageHeader">
                 Edit Routes
             </div>
-            <div @click="saveToDatabase();"class="SaveChanges"> 
+            <button @click="saveToDatabase();"class="SaveChanges"> 
                 <div>Save changes to the database</div>
-            </div>
+            </button>
         </div>
         <div class="mainPageBodySection">
             <div v-if="isStaffUser" class="addRoute"> 
