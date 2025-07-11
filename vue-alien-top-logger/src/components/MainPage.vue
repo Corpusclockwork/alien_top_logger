@@ -21,30 +21,19 @@ export default {
     components: {
         ImageMarker
     },
-    beforeMount() {
+    created() {
         // get user details (from props maybe) and check if the current user is a staff user
         this.getRoutes();
     },
     methods: {
         async getRoutes() {
             const response = await fetch('http://127.0.0.1:8000/api/v1/routes/');
-            const reader = response.body.getReader();
-            let data = [];
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) {
-                    const str = new TextDecoder().decode(data[0]);
-                    this.allRoutes = JSON.parse(str);
-                    // newest routes at the top
-                    this.allRoutes.sort(function(a,b){
-                        return new Date(b.RouteCreatedAt) - new Date(a.RouteCreatedAt);
-                    });
-                    console.log(this.allRoutes);
-                    // this.allRoutes is a proxy array
-                    return;
-                }
-                data.push(value);
-            }
+            const data = await response.json()
+             this.allRoutes = data.routes;
+             this.allRoutes.sort(function(a,b){
+                return new Date(b.RouteCreatedAt) - new Date(a.RouteCreatedAt);
+            });
+            console.log(this.allRoutes);
         },
         async saveNewRoutesInDatabase() {
             this.newRoutesToSave.forEach((route) => {delete route.RouteId});
