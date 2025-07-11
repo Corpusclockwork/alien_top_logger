@@ -4,7 +4,7 @@ export default {
     name: 'MainPage',
     data: function () {
         return {
-            isStaffUser: true, // TWEAK THIS FOR QUICK TESTING
+            // isStaffUser: true, // TWEAK THIS FOR QUICK TESTING
             allRoutes: undefined,
             RouteGradeRangeSelected: null,
             RouteHoldColourSelected: null,
@@ -17,6 +17,9 @@ export default {
             filteredRoutes: []
             
         }
+    },
+    props: {
+        isStaffUser: Boolean
     },
     components: {
         ImageMarker
@@ -127,6 +130,9 @@ export default {
                 const indexOfRouteToRemove = this.routesClimbedByUser.indexOf((route) => route.id === customerEditRouteObject.id);
                 this.routesClimbedByUser.splice(indexOfRouteToRemove, 1);
             }
+        },
+        logOutUser() {
+            this.$emit("logoutUser");
         }
     },
     watch : {
@@ -146,6 +152,7 @@ export default {
 <template>
     <div class="mainPage">
         <div class="mainPageHeaderSection">
+            <button @click="logOutUser()" type="button" class="loginButton btn btn-primary">Logout User</button>
             <div v-if="!isStaffUser" class="MainPageHeader">
                 Track Routes
             </div>

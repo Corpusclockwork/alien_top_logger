@@ -13,13 +13,12 @@ export default {
     },
     methods: {
         async createUser(){
-            console.log("hi");
             const response = await fetch("http://127.0.0.1:8000/api/v1/newuser/", {
                 method: "POST",
                 headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
+                    'Accept': 'application/json'
                 },
+                credentials: "include",
                 body: JSON.stringify({
                     username: this.username, 
                     email: this.email, 
@@ -35,6 +34,9 @@ export default {
             } else {
                 this.passwordsAreEqual = false;
             }
+        },
+        displayLoginPage(){
+            this.$emit("toggleLoginPages");
         }
     },
     watch: {
@@ -54,7 +56,7 @@ export default {
                 New User:
             </div>
             <div>
-                <input v-model="isClimbingStaffMemberInFrontEnd" type="checkbox" class="newUserPageSectionText" id="isStaff" aria-describedby="isStaff">
+                <input type="checkbox" class="newUserPageSectionText" id="isStaff" aria-describedby="isStaff">
                 <label for="checkbox" class="isStaffText font-semibold w-24">Create a staff user ?</label>
                 <div class="checkboxWarningText">(This checkbox should be removed before general customer use)</div>
             </div>
@@ -77,6 +79,7 @@ export default {
         </div>
         <div v-show="!passwordsAreEqual" class="passwordWarning"> Passwords don't match !</div>
         <button @click="createUser()" type="button" class="createUserButton btn btn-primary"> Create User</button>
+        <button @click="displayLoginPage()" type="button" class="loginButton btn btn-primary">Go to Login Page</button>
     </div>
 </template>
 <style>

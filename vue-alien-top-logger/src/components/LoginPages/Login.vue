@@ -1,5 +1,4 @@
 <script>
-import MainPage from "../MainPage.vue"
 export default {
     name: 'Login',
     data: function () {
@@ -7,51 +6,20 @@ export default {
             username: null,
             password: null,
             email: null,
-         
-            isClimbingStaffMember: false, 
-            csrfToken: null,
-            isAuthenticated: false
+            isClimbingStaffMember: false,
         }
     },
-    components: {
-        MainPage
-    },
-    created() {
-        this.isUserAuthenticated();
+    props:{
+        csrfToken: String,
+        isAuthenticated: Boolean
     },
     methods:{
-        async getCSRF() {
-            // this.csrfToken = null;
-            console.log("hi")
-            const response = await fetch("http://localhost:8000/api/v1/csrf/", {
-                credentials: "include"
-            });
-            if (response.ok == true){
-                this.csrfToken = response.headers.get("X-CSRFToken");
-                console.log(this.csrfToken);
-                console.log(response);
-            } 
-        },
-        async isUserAuthenticated() {
-            const response = await fetch("http://localhost:8000/api/v1/session/", {
-                credentials: "include"
-            });
-            const data = await response.json()
-            console.log(data);
-            if (data.isAuthenticated){
-                this.isAuthenticated = true;
-                this.getCSRF();
-            } else {
-                this.isAuthenticated = false;
-                this.getCSRF();
-            }
-        },
         async loginUser() {
-            console.log(this.csrfToken)
+            console.log(this.csrfToken);
             const response = await fetch("http://localhost:8000/api/v1/login/", {
                 method: "POST",
                 headers: {
-                    'Content-Type': 'application/json',
+                    "Content-Type": "application/json",
                     "X-CSRFToken": this.csrfToken
                 },
                 credentials: "include",
@@ -62,25 +30,20 @@ export default {
                 })
             });
             if (response.ok == true){
-                this.isAuthenticated = true;
+                // this.isAuthenticated = true;
+                this.$emit("userAuthenticated", {isAuthenticated: this.isAuthenticated});
                 // this.isClimbingStaffMember = response.body.isClimbingStaffMember
             }
         },
-        async logoutUser() {
-            const response = await fetch("http://localhost:8000/api/v1/logout/", {
-                credentials: "include",
-            })
-            if (response.ok) {
-                this.isAuthenticated = false
-                this.getCSRF();
-            }
-        },
+        displayNewUserPage(){
+            this.$emit("toggleLoginPages");
+        }
     }
 }
 </script>
 
 <template>
-    <div v-if="!isAuthenticated" class="loginPage">
+    <div class="loginPage">
         <div class="loginPageHeader">
             Login:
         </div>
@@ -96,15 +59,8 @@ export default {
             <label for="password" class="loginPageSectionHeader font-semibold w-24">Password</label>
             <input v-model="password" type="password" class="loginPageSectionText form-control" id="passwordinput" aria-describedby="passwordHelp" placeholder="Enter password">
         </div>
-        <button @click="loginUser()" type="button" class="loginButton btn btn-primary"> Login</button>
-        
-    </div>
-    <div v-if="isAuthenticated">
-        <button @click="logoutUser()" class="loginButton">Logout</button>
-        <MainPage
-            :isClimbingStaffMember="isClimbingStaffMember"
-        >
-        </MainPage>
+        <button @click="loginUser()" type="button" class="loginButton btn btn-primary">Login</button>
+        <button @click="displayNewUserPage()" type="button" class="loginButton btn btn-primary">Create a New User</button>
     </div>
 </template>
 <style>
