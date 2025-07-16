@@ -3,9 +3,9 @@ export default {
     name: 'Login',
     data: function () {
         return {
-            username: null,
-            password: null,
-            email: null,
+            username: '',
+            password: '',
+            email: '',
             isClimbingStaffMember: false,
         }
     },
@@ -59,18 +59,22 @@ export default {
             <label for="password" class="loginPageSectionHeader font-semibold w-24">Password</label>
             <input v-model="password" type="password" class="loginPageSectionText form-control" id="passwordinput" aria-describedby="passwordHelp" placeholder="Enter password">
         </div>
-        <button @click="loginUser()" type="button" class="loginButton btn btn-primary">Login</button>
-        <button @click="displayNewUserPage()" type="button" class="loginButton btn btn-primary">Create a New User</button>
+        <div class="loginPageButtonContainer">
+            <button @click="loginUser()" type="button" class="loginPageButton" :disabled="username === '' || password === ''">Login</button>
+            <button @click="displayNewUserPage()" type="button" class="loginPageButton">Create a New User</button>
+        </div>
     </div>
 </template>
+
 <style>
+
 .loginPage {
+    padding: 10%;
     line-height: 1;
     border-radius: 5px;
     color: white;
     font-size: 4rem;
     display: grid;
-    font-size: 4rem;
 }
 
 .loginPageSectionHeader {
@@ -81,19 +85,28 @@ export default {
     font-family: "Montserrat", Sans-serif;
 }
 
-.loginButton {
-    font-size: 2rem;
+.loginPageButtonContainer {
+    display: flex;
+    flex-direction: column;
+    justify-self: center;
+}
+
+.loginPageButton {
+    font-size: 1.5rem;
     background-color: #E9704B;
     color: white;
     border-color: #E9704B;
     justify-self: center;
+    border-radius: 15px;
+    margin: 5px;
+    padding: 10px;
 }
 
-.loginButton:disabled {
+.loginPageButton:disabled {
     background-color: grey;
 }
 
-.loginButton:hover {
+.loginPageButton:hover:enabled {
     background-color: #994931;
 }
 </style>

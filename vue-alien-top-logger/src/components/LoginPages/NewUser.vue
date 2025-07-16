@@ -3,10 +3,10 @@ export default {
     name: 'NewUser',
     data: function () {
         return {
-            username: null,
-            email: null,
-            password: null,
-            repeatPassword: null,
+            username: '',
+            email: '',
+            password: '',
+            repeatPassword: '',
             passwordsAreEqual: true,
             isClimbingStaffMemberInFrontEnd: false
         }
@@ -78,8 +78,10 @@ export default {
             <input v-model="repeatPassword" type="password" class="newUserPageSectionText form-control" id="repeatpasswordinput" aria-describedby="passwordHelp" placeholder="Enter password">
         </div>
         <div v-show="!passwordsAreEqual" class="passwordWarning"> Passwords don't match !</div>
-        <button @click="createUser()" type="button" class="createUserButton btn btn-primary"> Create User</button>
-        <button @click="displayLoginPage()" type="button" class="loginButton btn btn-primary">Go to Login Page</button>
+        <div class="createUserPageButtonContainer">
+            <button @click="createUser()" type="button" class="createUserPageButton createUserButton" :disabled="!passwordsAreEqual || password === ''"> Create User</button>
+            <button @click="displayLoginPage()" type="button" class="createUserPageButton">Go to Login Page</button>
+        </div>
     </div>
 </template>
 <style>
@@ -90,12 +92,10 @@ export default {
 }
 
 .newUserPage {
-    margin: 10%;
+    padding: 10%;
     line-height: 1;
     border-radius: 5px;
     color: white;
-    margin-bottom: 0%;
-    padding-bottom: 10%;
     font-size: 4rem;
     display: grid;
 }
@@ -113,7 +113,7 @@ export default {
 }
 
 .passwordWarning {
-    font-size: 0.5rem;
+    font-size: 1.5rem;
 }
 
 .isStaffText {
@@ -129,19 +129,29 @@ export default {
         font-size: 0.7rem;
     }
 }
-.createUserButton {
-    font-size: 2rem;
+
+.createUserPageButtonContainer {
+    display: flex;
+    flex-direction: column;
+    justify-self: center;
+}
+
+.createUserPageButton {
+    font-size: 1.5rem;
     background-color: #E9704B;
     color: white;
     border-color: #E9704B;
     justify-self: center;
+    border-radius: 15px;
+    margin: 5px;
+    padding: 10px;
 }
 
-.createUserButton:disabled {
+.createUserPageButton:disabled {
     background-color: grey;
 }
 
-.createUserButton:hover {
+.createUserPageButton:hover:enabled {
     background-color: #994931;
 }
 </style>

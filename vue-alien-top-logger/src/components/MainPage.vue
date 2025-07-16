@@ -269,13 +269,22 @@ export default {
     </div>
 </template>
 <style>
-.mainPage {
+/* .mainPage {
     margin: 5%;
     line-height: 1;
     margin-bottom: 0%;
     background: rgba(255, 255, 255, 0.85);
     font-size: 1em;
     border-radius: 5px;
+} */
+
+.mainPage {
+    padding: 2% 10% 10% 10%;
+    line-height: 1;
+    border-radius: 5px;
+    color: white;
+    font-size: 1rem;
+    display: grid;
 }
 
 #select:focus {
@@ -309,11 +318,14 @@ export default {
 
 .mainPageHeaderSection {
     display: flex;
+    background: rgba(0, 0, 0, 1);
+    padding: 30px;
 }
+
 .MainPageHeader {
     flex: 1 1;
     padding: 2px;
-    color: #E13B3B;
+    color: white;
     font-size: 4em;
 }
 
@@ -336,8 +348,9 @@ export default {
 }
 
 .mainPageBodySection {
-    padding: 1%;
+    color: black;
     text-align: center;
+    background: rgba(255, 255, 255, 0.85);
 }
 
 .applyFilters {
