@@ -15,7 +15,7 @@ export default {
         marker: Marker,
         climbedByUser: Boolean,
         destroyRoute: Boolean,
-        isStaffUser: Boolean
+        isClimbingStaffMember: Boolean
     },
     watch: {
         marker(){
@@ -36,8 +36,8 @@ export default {
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 v-if="isStaffUser" class="modalFormSelectHeader modal-title">Destroy Route</h5>
-                <h5 v-if="!isStaffUser" class="modalFormSelectHeader modal-title">Track Route</h5>
+                <h5 v-if="isClimbingStaffMember" class="modalFormSelectHeader modal-title">Destroy Route</h5>
+                <h5 v-if="!isClimbingStaffMember" class="modalFormSelectHeader modal-title">Track Route</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                 </button>
             </div>
@@ -55,14 +55,14 @@ export default {
                     <div class="form-row" >
                         <p> <span class="fw-bold"> Route Id: </span> {{marker?.id}} </p>
                     </div>
-                    <div v-if="isStaffUser">
+                    <div v-if="isClimbingStaffMember">
                         <div class="custom-control custom-switch">
                             <input class=" editCheckbox custom-control-input" type="checkbox" role="switch" id="destroyRoute" v-model="destroyRouteLocal" />
                             <label class="custom-control-label" for="destroyRoute">Destroy selected Route ?</label>
                         </div>
                         <div class="negativeIdWarning" v-if="marker?.id < 0">A negative route id means that the route hasn't been saved in the database yet</div>
                     </div>
-                    <div v-if="!isStaffUser">
+                    <div v-if="!isClimbingStaffMember">
                         <div class="custom-control custom-switch">
                             <input class="editCheckbox custom-control-input" type="checkbox" role="switch" id="climbedByUserLocal" v-model="climbedByUserLocal" />
                             <label class="custom-control-label" for="climbedByUserLocal">Climbed by you ?</label>

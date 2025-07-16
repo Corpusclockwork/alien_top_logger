@@ -22,7 +22,7 @@ export default {
         newRoutes: Array,
         routesClimbedByUser: Array,
         routesToDeleteFromDatabase: Array,
-        isStaffUser: Boolean
+        isClimbingStaffMember: Boolean
     },
     methods: {
         generateMarkers() {
@@ -40,7 +40,7 @@ export default {
             });
         },
         setNewRouteLocation(event) {
-            if(!this.isStaffUser) {
+            if(!this.isClimbingStaffMember) {
                 return;
             }
             function roundNumber(x){
@@ -94,8 +94,8 @@ export default {
                 src="/Alienbloc_shape.png"
                 alt= "Alien bloc"
                 @click="setNewRouteLocation"
-                :data-bs-toggle="this.isStaffUser ? 'modal' : ''"
-                :data-bs-target="this.isStaffUser ? '#add-route' : ''"
+                :data-bs-toggle="this.isClimbingStaffMember ? 'modal' : ''"
+                :data-bs-target="this.isClimbingStaffMember ? '#add-route' : ''"
             />
             <div v-for="marker in this.markers">
                 <Marker
@@ -110,7 +110,7 @@ export default {
             </div>
         </div>
     </div>
-    <div v-if="this.isStaffUser">
+    <div v-if="this.isClimbingStaffMember">
         <AddRouteModal
             :markerX= "this.newMarkerX"
             :markerY="this.newMarkerY"
@@ -119,7 +119,7 @@ export default {
         />
     </div>
     <EditRouteModal
-        :isStaffUser="this.isStaffUser"
+        :isClimbingStaffMember="this.isClimbingStaffMember"
         :marker="this.selectedRoute? this.selectedRoute : undefined" 
         :climbedByUser="this.routesClimbedByUser.includes(this.selectedRoute?.id)"
         :destroyRoute="this.routesToDeleteFromDatabase.includes(this.selectedRoute?.id)"

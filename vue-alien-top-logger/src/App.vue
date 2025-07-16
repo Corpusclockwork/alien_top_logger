@@ -14,7 +14,8 @@ export default {
             isAuthenticated: null,
             csrfToken: "",
             displayLoginPage: true,
-            isStaffUser: undefined
+            isClimbingStaffMember: undefined,
+            displayMainPage: false
         }
     },
     created() {
@@ -38,6 +39,7 @@ export default {
             console.log(data);
             if (data.isAuthenticated){
                 this.isAuthenticated = true;
+                this.isClimbingStaffMember = data.isClimbingStaffMember
                 this.getCSRF();
             } else {
                 this.isAuthenticated = false;
@@ -59,15 +61,15 @@ export default {
 <template>
     <MainPage 
         v-if="isAuthenticated"
+        :isClimbingStaffMember="isClimbingStaffMember"
         @logoutUser="logoutUser()"
-    >
-    </MainPage>
+    ></MainPage>
     <Login
         v-else-if="displayLoginPage && !isAuthenticated"
         @userAuthenticated="isAuthenticated = true"
+        @isClimbingStaffMember="(value)=> {isClimbingStaffMember = value}"
         @toggleLoginPages="displayLoginPage = false"
         :csrfToken="csrfToken"
-        :isAuthenticated="isAuthenticated"
     ></Login>
     <NewUser
         v-else-if="!displayLoginPage && !isAuthenticated"

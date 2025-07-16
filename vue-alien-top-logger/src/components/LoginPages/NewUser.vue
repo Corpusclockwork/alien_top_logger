@@ -4,11 +4,10 @@ export default {
     data: function () {
         return {
             username: '',
-            email: '',
             password: '',
             repeatPassword: '',
             passwordsAreEqual: true,
-            isClimbingStaffMemberInFrontEnd: false
+            isClimbingStaffMember: false
         }
     },
     methods: {
@@ -21,9 +20,8 @@ export default {
                 credentials: "include",
                 body: JSON.stringify({
                     username: this.username, 
-                    email: this.email, 
                     password: this.password, 
-                    isClimbingStaffMemberInFrontEnd: this.isClimbingStaffMemberInFrontEnd
+                    isClimbingStaffMember: this.isClimbingStaffMember
                 })
             });
             console.log(response);
@@ -56,7 +54,7 @@ export default {
                 New User:
             </div>
             <div>
-                <input type="checkbox" class="newUserPageSectionText" id="isStaff" aria-describedby="isStaff">
+                <input v-model="isClimbingStaffMember" type="checkbox" class="newUserPageSectionText" id="isStaff" aria-describedby="isStaff">
                 <label for="checkbox" class="isStaffText font-semibold w-24">Create a staff user ?</label>
                 <div class="checkboxWarningText">(This checkbox should be removed before general customer use)</div>
             </div>
@@ -64,10 +62,6 @@ export default {
         <div class="flex items-center gap-4 mb-2">
             <label for="username" class="newUserPageSectionHeader font-semibold w-24">Username</label>
             <input v-model="username" type="username" class="newUserPageSectionText form-control" id="usernameinput" aria-describedby="userHelp" placeholder="Enter username">
-        </div>
-         <div class="flex items-center gap-4 mb-2">
-            <label for="email" class="newUserPageSectionHeader font-semibold w-24">Email</label>
-            <input v-model="email" type="email" class="newUserPageSectionText form-control" id="emailinput" aria-describedby="emailHelp" placeholder="Enter email address">
         </div>
         <div class="flex items-center gap-4 mb-2">
             <label for="password" class="newUserPageSectionHeader font-semibold w-24">Password</label>

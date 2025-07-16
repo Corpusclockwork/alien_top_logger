@@ -1,41 +1,7 @@
 from django.db import models
-# from django.contrib.auth.models import Permission
-# from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.models import User, AnonymousUser
+from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 import datetime
-
-# class isClimbingStaffMember(Group):
-#     name = "isClimbingStaffMember",
-#     permissions = ['can_add_route', 'can_delete_route'],
-#     class Meta:
-#         content_type = ContentType.objects.get_for_model(User)
-#         permission = Permission.objects.create(
-#             codename="can_add_route",
-#             name="Can add routes",
-#             content_type=content_type,
-#         )
-#         permission = Permission.objects.create(
-#             codename="can_delete_route",
-#             name="Can delete routes",
-#             content_type=content_type,
-#         )
-
-# class isClimbingCustomer(Group):
-#     name = "isClimbingCustomer",
-#     permissions = ['can_track_route'],
-#     class Meta:
-#         content_type = ContentType.objects.get_for_model(User)
-#         permission = Permission.objects.create(
-#             codename="can_track_their_routes",
-#             name="Can track routes that they have climbed",
-#             content_type=content_type,
-#         )
-#         permission = Permission.objects.create(
-#             codename="can_see_their_tracked_routes",
-#             name="Can see the tracked routes that they have climbed",
-#             content_type=content_type,
-#         )
 
 class Route(models.Model):
     RouteId = models.AutoField(primary_key=True)
@@ -64,11 +30,12 @@ class Route(models.Model):
 
     class Meta:
         permissions = [
-            ("can_delete_route", "Can delete route"),
-            ("can_add_route", "Can add route"),
+            ("can_delete_routes", "Can delete routes"),
+            ("can_add_routes", "Can add routes"),
+            ("can_track_routes", "Can track routes sent by themselves"),
         ]
 
-    # I was going to have a RouteDestroyedAt datefiles, but once a route is down,
+    # I was going to have a RouteDestroyedAt date field, but once a route is down,
     # it never goes back up and never can, there really is not a point
     # to storing that information. Might as well try to use db space well
 

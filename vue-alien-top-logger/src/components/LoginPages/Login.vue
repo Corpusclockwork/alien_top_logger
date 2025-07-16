@@ -5,13 +5,11 @@ export default {
         return {
             username: '',
             password: '',
-            email: '',
             isClimbingStaffMember: false,
         }
     },
     props:{
         csrfToken: String,
-        isAuthenticated: Boolean
     },
     methods:{
         async loginUser() {
@@ -25,14 +23,14 @@ export default {
                 credentials: "include",
                 body: JSON.stringify({
                     username: this.username, 
-                    email: this.email, 
                     password: this.password
                 })
             });
             if (response.ok == true){
-                // this.isAuthenticated = true;
-                this.$emit("userAuthenticated", {isAuthenticated: this.isAuthenticated});
-                // this.isClimbingStaffMember = response.body.isClimbingStaffMember
+                const data = await response.json()
+                console.log(data);
+                this.$emit("userAuthenticated");
+                this.$emit("isClimbingStaffMember", data.isClimbingStaffMember);
             }
         },
         displayNewUserPage(){
@@ -50,10 +48,6 @@ export default {
         <div class="flex items-center gap-4 mb-2">
             <label for="username" class="loginPageSectionHeader font-semibold w-24">Username</label>
             <input v-model="username" type="username" class="loginPageSectionText form-control" id="usernameinput" aria-describedby="userHelp" placeholder="Enter username">
-        </div>
-         <div class="flex items-center gap-4 mb-2">
-            <label for="email" class="newUserPageSectionHeader font-semibold w-24">Email</label>
-            <input v-model="email" type="email" class="newUserPageSectionText form-control" id="emailinput" aria-describedby="emailHelp" placeholder="Enter email address">
         </div>
         <div class="flex items-center gap-4 mb-2">
             <label for="password" class="loginPageSectionHeader font-semibold w-24">Password</label>

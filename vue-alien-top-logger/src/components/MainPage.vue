@@ -4,28 +4,23 @@ export default {
     name: 'MainPage',
     data: function () {
         return {
-            // isStaffUser: true, // TWEAK THIS FOR QUICK TESTING
             allRoutes: undefined,
             RouteGradeRangeSelected: null,
             RouteHoldColourSelected: null,
-            // Users
             routesClimbedByUser: [], // will need to populate this from the backend at some point 
-            // Staff
             routesToDeleteFromDatabase: [],
             newRoutesToSave: [],
-
             filteredRoutes: []
             
         }
     },
     props: {
-        isStaffUser: Boolean
+        isClimbingStaffMember: Boolean
     },
     components: {
         ImageMarker
     },
     created() {
-        // get user details (from props maybe) and check if the current user is a staff user
         this.getRoutes();
     },
     methods: {
@@ -153,10 +148,10 @@ export default {
     <div class="mainPage">
         <div class="mainPageHeaderSection">
             <button @click="logOutUser()" type="button" class="loginButton btn btn-primary">Logout User</button>
-            <div v-if="!isStaffUser" class="MainPageHeader">
+            <div v-if="!isClimbingStaffMember" class="MainPageHeader">
                 Track Routes
             </div>
-            <div v-if="isStaffUser" class="MainPageHeader">
+            <div v-if="isClimbingStaffMember" class="MainPageHeader">
                 Edit Routes
             </div>
             <button @click="saveToDatabase();"class="SaveChanges"> 
@@ -164,7 +159,7 @@ export default {
             </button>
         </div>
         <div class="mainPageBodySection">
-            <div v-if="isStaffUser" class="addRoute"> 
+            <div v-if="isClimbingStaffMember" class="addRoute"> 
                 <div>Click on map to add a route</div>
             </div>
             <div>
@@ -176,7 +171,7 @@ export default {
                     @staffAddNewRoute="staffAddNewRoute"
                     @staffEditRoute="staffEditRoute"
                     @customerEditRoute="customerEditRoute"
-                    :isStaffUser="this.isStaffUser"
+                    :isClimbingStaffMember="this.isClimbingStaffMember"
                 />
             </div>
             <form class="mainPageForm"> 
@@ -200,7 +195,7 @@ export default {
                     </div>
                 </div>
                 <div class="mainPageFormSection">
-                    <div class="mainPageFormMiddleSection" v-if=" !isStaffUser">
+                    <div class="mainPageFormMiddleSection" v-if=" !isClimbingStaffMember">
                         Routes climbed By You:
                         <div v-show="this.routesClimbedByUser.length > 0" class="editRoutesSectionList">
                             <div class="list-group overflow-scroll" v-for="route in this.routesClimbedByUser">
@@ -217,7 +212,7 @@ export default {
                         </div>
 
                     </div>
-                    <div class="mainPageFormMiddleSection" v-if="isStaffUser">
+                    <div class="mainPageFormMiddleSection" v-if="isClimbingStaffMember">
                         <div>
                             Routes <span class="fw-bold">added</span> by you just now:
                             <div v-show="this.newRoutesToSave.length > 0" class="editRoutesSectionList">
