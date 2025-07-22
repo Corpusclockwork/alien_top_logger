@@ -13,25 +13,32 @@ export default {
         return {
             isAuthenticated: null,
             csrfToken: "",
+            username: "",
             displayLoginPage: true,
             isClimbingStaffMember: undefined,
             displayMainPage: false
         }
     },
     created() {
-        this.isUserAuthenticated();
+        this.session();
     },
     methods: {
-        async getCSRF() {
-            const response = await fetch("http://localhost:8000/api/v1/csrf/", {
-                credentials: "include"
-            });
-            if (response.ok == true){
-                this.csrfToken = response.headers.get("X-CSRFToken");
-                console.log(this.csrfToken);
-            } 
+        getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
         },
-        async isUserAuthenticated() {
+        async session() {
             const response = await fetch("http://localhost:8000/api/v1/session/", {
                 credentials: "include"
             });
@@ -40,11 +47,11 @@ export default {
             if (data.isAuthenticated){
                 this.isAuthenticated = true;
                 this.isClimbingStaffMember = data.isClimbingStaffMember
-                this.getCSRF();
+                this.username = data.username
             } else {
                 this.isAuthenticated = false;
-                this.getCSRF();
             }
+            this.csrfToken = this.getCookie("csrftoken");
         },
         async logoutUser() {
             const response = await fetch("http://localhost:8000/api/v1/logout/", {
@@ -52,7 +59,6 @@ export default {
             })
             if (response.ok) {
                 this.isAuthenticated = false
-                this.getCSRF();
             }
         }
     }
@@ -62,11 +68,15 @@ export default {
     <MainPage 
         v-if="isAuthenticated"
         :isClimbingStaffMember="isClimbingStaffMember"
+        :csrfToken="csrfToken"
+        :username="username"
+        :updateCSRFToken="csrfToken = getCookie('csrftoken')"
         @logoutUser="logoutUser()"
     ></MainPage>
     <Login
         v-else-if="displayLoginPage && !isAuthenticated"
         @userAuthenticated="isAuthenticated = true"
+        @username="(value) => {username = value}"
         @isClimbingStaffMember="(value)=> {isClimbingStaffMember = value}"
         @toggleLoginPages="displayLoginPage = false"
         :csrfToken="csrfToken"

@@ -11,11 +11,12 @@ export default {
             routesToDeleteFromDatabase: [],
             newRoutesToSave: [],
             filteredRoutes: []
-            
         }
     },
     props: {
-        isClimbingStaffMember: Boolean
+        isClimbingStaffMember: Boolean,
+        csrfToken: String,
+        username: String
     },
     components: {
         ImageMarker
@@ -25,7 +26,7 @@ export default {
     },
     methods: {
         async getRoutes() {
-            const response = await fetch('http://127.0.0.1:8000/api/v1/routes/');
+            const response = await fetch('http://localhost:8000/api/v1/routes/');
             const data = await response.json()
              this.allRoutes = data.routes;
              this.allRoutes.sort(function(a,b){
@@ -34,30 +35,52 @@ export default {
             console.log(this.allRoutes);
         },
         async saveNewRoutesInDatabase() {
+            console.log(this.csrfToken);
             this.newRoutesToSave.forEach((route) => {delete route.RouteId});
-            const response = await fetch("http://127.0.0.1:8000/api/v1/routes/create/", {
+            const response = await fetch("http://localhost:8000/api/v1/routes/create/", {
                 method: "POST",
                 headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    "X-CSRFToken": this.csrfToken
                 },
+                credentials: "include",
                 body: JSON.stringify(this.newRoutesToSave)
             });
         },
         async deleteRoutesFromDatabase() {
             const ids = this.routesToDeleteFromDatabase.map(route => route.RouteId);
-            const response = await fetch("http://127.0.0.1:8000/api/v1/routes/delete/", {
+            const response = await fetch("http://localhost:8000/api/v1/routes/delete/", {
+                credentials: "include",
                 method: "DELETE",
                 headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    "X-CSRFToken": this.csrfToken
                 },
                 body: JSON.stringify(ids)
             });
         },
-        saveToDatabase(){
-            saveNewRoutesInDatabase() ;
-            deleteRoutesFromDatabase();
+         async trackRoutesInDatabase() {
+            const routeIds = this.routesClimbedByUser.map(route => route.RouteId);
+            const response = await fetch("http://localhost:8000/api/v1/routes/track/", {
+                credentials: "include",
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                    "X-CSRFToken": this.csrfToken
+                },
+                body: JSON.stringify({'username': this.username, 'routeIds': routeIds})
+            });
+        },
+        async saveToDatabase(){
+            if(this.newRoutesToSave.length > 0){
+                await this.saveNewRoutesInDatabase() ;
+            }
+            if(this.routesToDeleteFromDatabase.length > 0){
+                await this.deleteRoutesFromDatabase();
+            }
+            if (this.routesClimbedByUser.length > 0) {
+                await this.trackRoutesInDatabase()
+            }
             this.newRoutesToSave = [];
             this.routesToDeleteFromDatabase = [];
             this.RouteGradeRangeSelected = null;

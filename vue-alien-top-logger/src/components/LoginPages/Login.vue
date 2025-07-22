@@ -13,8 +13,7 @@ export default {
     },
     methods:{
         async loginUser() {
-            console.log(this.csrfToken);
-            const response = await fetch("http://localhost:8000/api/v1/login/", {
+            const response = await fetch("http:///localhost:8000/api/v1/accounts/login/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -27,10 +26,13 @@ export default {
                 })
             });
             if (response.ok == true){
-                const data = await response.json()
-                console.log(data);
+                const data = await response.json();
                 this.$emit("userAuthenticated");
+                this.$emit("username", data.username);
                 this.$emit("isClimbingStaffMember", data.isClimbingStaffMember);
+                // update the CSRF token 
+                this.$emit("updateCSRFToken");
+                
             }
         },
         displayNewUserPage(){
