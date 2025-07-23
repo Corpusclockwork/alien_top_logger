@@ -74,10 +74,10 @@ def login_user(request):
     user = authenticate(username = username, password = password)
     print(user)
     if user is None:
-        return JsonResponse({'detail': 'Invalid credentials.'})
+        return JsonResponse({'detail': 'Invalid credentials.'}, status=status.HTTP_400_BAD_REQUEST)
     else :
         login(request, user)
-        return JsonResponse({'detail': 'Successfully logged in.',})
+        return JsonResponse({'detail': 'Successfully logged in.'}, status=status.HTTP_202_ACCEPTED)
     
 def logout_user(request):
     if not request.user.is_authenticated:
@@ -112,7 +112,6 @@ def delete_routes(request):
     Route.objects.filter(RouteId__in=data).delete()
     return JsonResponse({'routesDeleted': data},status=status.HTTP_204_NO_CONTENT)
 
-
 #------- Track Routes -----------------------------------------
 # post
 # @permission_required("can_track_routes")
@@ -120,14 +119,10 @@ def track_routes(request):
     data = json.loads(request.body)
     username = data.get('username')
     routeIdsAdd = data.get('routesClimbedByUserAdd')
-    routesToTrackAdd = Route.objects.filter(RouteId__in=routeIdsAdd)
-    routeIdsDelete = data.get('routesClimbedByUserDelete')
-    routesToTrackDelete = Route.objects.filter(RouteId__in=routeIdsDelete)
-    for route in routesToTrackAdd:
+    routesToTrack = Route.objects.filter(RouteId__in=routeIdsAdd)
+    for route in routesToTrack:
         route.RoutesClimbedByUsers.add(User.objects.get(username = username))
-    for route in routesToTrackDelete:
-        route.RoutesClimbedByUsers.delete(User.objects.get(username = username))
-    return JsonResponse({'routesTrackedAdd': routeIdsAdd, 'routesTrackedDelete': routeIdsDelete, 'user': username},status=status.HTTP_201_CREATED)
+    return JsonResponse({'routesTrackedAdd': routeIdsAdd},status=status.HTTP_201_CREATED)
 
 #get
 # @permission_required("can_track_routes")

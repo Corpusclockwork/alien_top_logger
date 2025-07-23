@@ -58,7 +58,7 @@ export default {
         </div>
         <div v-show="!passwordsAreEqual" class="passwordWarning"> Passwords don't match !</div>
         <div class="createUserPageButtonContainer">
-            <button @click="$emit('createUser', {username: username, password: password, isClimbingStaffMember: isClimbingStaffMember})" type="button" class="createUserPageButton createUserButton" :disabled="!passwordsAreEqual || password === ''"> Create User</button>
+            <button @click="$emit('createUser', {username, password, isClimbingStaffMember})" type="button" class="createUserPageButton createUserButton" :disabled="!passwordsAreEqual || password === ''"> Create User</button>
             <button @click="displayLoginPage()" type="button" class="createUserPageButton">Go to Login Page</button>
         </div>
     </div>

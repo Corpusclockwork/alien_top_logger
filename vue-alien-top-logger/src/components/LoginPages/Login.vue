@@ -29,7 +29,7 @@ export default {
             <input v-model="password" type="password" class="loginPageSectionText form-control" id="passwordinput" aria-describedby="passwordHelp" placeholder="Enter password">
         </div>
         <div class="loginPageButtonContainer">
-            <button @click="$emit('loginUser', {username: username, password: password})" type="button" class="loginPageButton" :disabled="username === '' || password === ''">Login</button>
+            <button @click="$emit('loginUser', {username, password})" type="button" class="loginPageButton" :disabled="username === '' || password === ''">Login</button>
             <button @click="displayNewUserPage()" type="button" class="loginPageButton">Create a New User</button>
         </div>
     </div>

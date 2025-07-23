@@ -43,25 +43,26 @@ export default {
             }
             return cookieValue;
         },
-        async loginUser(username, password) {
-            const response = await fetch("http:///localhost:8000/api/v1/login/", {
+        async loginUser(loginDetails) {
+            const response = await fetch("http://localhost:8000/api/v1/login/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "X-CSRFToken": this.getCSRFToken
+                    "X-CSRFToken": this.getCSRFToken()
                 },
                 credentials: "include",
                 body: JSON.stringify({
-                    username: username, 
-                    password: password
+                    username: loginDetails.username, 
+                    password: loginDetails.password
                 })
             });
-            const data = await response.json();
+            // const data = await response.json();
             if (response.ok == true){
                 this.whoAmI();
             } else {
                 // failed to log in
                 this.messageToDisplay= "Login details incorrect"
+                console.log(this.messageToDisplay);
             }
         },
         async logoutUser() {
@@ -69,6 +70,7 @@ export default {
                 const response = await fetch("http://localhost:8000/api/v1/logout/", {
                     method: 'POST',
                     headers: {
+                        "Content-Type": "application/json",
                         'X-CSRFToken': this.getCSRFToken(),
                     },
                     credentials: 'include',
@@ -81,6 +83,7 @@ export default {
             } catch(error) {
                 console.error('Logout failed', error)
                 this.messageToDisplay= "Log out failed"
+                console.log(this.messageToDisplay);
                 throw error
             }
         },
@@ -106,7 +109,7 @@ export default {
                 this.isAuthenticated = false;
             }
         },
-        async createUser(username, password, isClimbingStaffMember){
+        async createUser(newUserDetails){
             const response = await fetch("http://127.0.0.1:8000/api/v1/newuser/", {
                 method: "POST",
                 headers: {
@@ -114,17 +117,19 @@ export default {
                 },
                 credentials: "include",
                 body: JSON.stringify({
-                    username: username, 
-                    password: password, 
-                    isClimbingStaffMember: isClimbingStaffMember
+                    username: newUserDetails.username, 
+                    password: newUserDetails.password, 
+                    isClimbingStaffMember: newUserDetails.isClimbingStaffMember
                 })
             });
             if (response.ok) {
                 // created user
                 this.messageToDisplay= "Created User" 
+                console.log(this.messageToDisplay);
             } else {
                  // failed to create user 
                  this.messageToDisplay= "Failed to create user"
+                 console.log(this.messageToDisplay);
             }
         }
     }
@@ -148,13 +153,13 @@ export default {
     <Login
         v-else-if="displayLoginPage && !isAuthenticated"
         :messageToDisplay="messageToDisplay"
-        @login="loginUser(username, password)"
+        @loginUser="loginUser"
         @toggleLoginPages="displayLoginPage = false"
     ></Login>
     <NewUser
         v-else-if="!displayLoginPage && !isAuthenticated"
         :messageToDisplay="messageToDisplay"
-        @createUser="createUser(username, password, isClimbingStaffMember)"
+        @createUser="createUser"
         @toggleLoginPages="displayLoginPage = true"
     ></NewUser>
 </template>
