@@ -19,9 +19,12 @@ export default {
     },
     props: {
         filteredRoutes: Array,
-        newRoutes: Array,
-        routesClimbedByUser: Array,
+
+        routesToAddToDatabase: Array,
         routesToDeleteFromDatabase: Array,
+
+        routesClimbedByUserInSession: Array,
+        routesClimbedByUserInDatabase: Array,
         isClimbingStaffMember: Boolean
     },
     methods: {
@@ -121,8 +124,8 @@ export default {
     <EditRouteModal
         :isClimbingStaffMember="this.isClimbingStaffMember"
         :marker="this.selectedRoute? this.selectedRoute : undefined" 
-        :climbedByUser="this.routesClimbedByUser.includes(this.selectedRoute?.id)"
-        :destroyRoute="this.routesToDeleteFromDatabase.includes(this.selectedRoute?.id)"
+        :climbedByUser="this.routesClimbedByUserInDatabase?.includes(this.selectedRoute?.id) || this.routesClimbedByUserInSession?.includes(this.selectedRoute?.id)"
+        :destroyRoute="this.routesToDeleteFromDatabase?.includes(this.selectedRoute?.id)"
         @on-ok="editRoute"
         @on-cancel="cancelEditRoute"  
     />

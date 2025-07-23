@@ -18,7 +18,7 @@ from django.views.decorators.http import require_POST, require_GET
 from django.contrib.auth.decorators import permission_required, login_required
 # Permissions normally enforced in this layer
     
-#------- User -----------------------------------------
+#------- User Authentication-----------------------------------------
 @csrf_exempt
 def add_user(request):
     data = json.loads(request.body)
@@ -51,35 +51,37 @@ def add_user(request):
 
 @ensure_csrf_cookie
 def session(request):
+    return JsonResponse({"CSRFTokenSet": True})
+
+def who_am_i(request):
+    print(request)
     if not request.user.is_authenticated:
         return JsonResponse({
             'isAuthenticated': False, 
         })
     return JsonResponse({
             'isAuthenticated': True,
+            'username': request.user.username,
             'isClimbingStaffMember': request.user.groups.filter(name="isClimbingStaffMember").exists(),
-            'username': request.user.username
         })
 
 #------- Login and Logout User -----------------------------------------
 def login_user(request):
     data = json.loads(request.body)
+    print(data)
     username = data.get('username')
     password = data.get('password')
     user = authenticate(username = username, password = password)
+    print(user)
     if user is None:
         return JsonResponse({'detail': 'Invalid credentials.'})
-    login(request, user)
-    return JsonResponse({
-            'detail': 'Successfully logged in.',
-            'username': username,
-            'isClimbingStaffMember': user.groups.filter(name="isClimbingStaffMember").exists()
-        })
+    else :
+        login(request, user)
+        return JsonResponse({'detail': 'Successfully logged in.',})
     
 def logout_user(request):
     if not request.user.is_authenticated:
         return JsonResponse({'detail': 'You are not logged in.'}, status=status.HTTP_400_BAD_REQUEST)
-    print(request.user)
     logout(request)
     return JsonResponse({'detail': 'Successfully logged out.'}, status=status.HTTP_202_ACCEPTED)
     
@@ -90,6 +92,7 @@ def route_list(self):
     serializer = RouteSerializer(routes, many=True)
     return JsonResponse({'routes': serializer.data})
 
+#------- Add Delete Routes -----------------------------------------
 #post
 # @permission_required("can_add_routes")
 def create_routes(request):
@@ -109,23 +112,33 @@ def delete_routes(request):
     Route.objects.filter(RouteId__in=data).delete()
     return JsonResponse({'routesDeleted': data},status=status.HTTP_204_NO_CONTENT)
 
+
+#------- Track Routes -----------------------------------------
 # post
 # @permission_required("can_track_routes")
 def track_routes(request):
     data = json.loads(request.body)
     username = data.get('username')
-    routeIds = data.get('routeIds')
-    routes = Route.objects.filter(RouteId__in=routeIds)
-    for route in routes:
+    routeIdsAdd = data.get('routesClimbedByUserAdd')
+    routesToTrackAdd = Route.objects.filter(RouteId__in=routeIdsAdd)
+    routeIdsDelete = data.get('routesClimbedByUserDelete')
+    routesToTrackDelete = Route.objects.filter(RouteId__in=routeIdsDelete)
+    for route in routesToTrackAdd:
         route.RoutesClimbedByUsers.add(User.objects.get(username = username))
-    return JsonResponse({'routesTracked': data, 'user': username},status=status.HTTP_201_CREATED)
+    for route in routesToTrackDelete:
+        route.RoutesClimbedByUsers.delete(User.objects.get(username = username))
+    return JsonResponse({'routesTrackedAdd': routeIdsAdd, 'routesTrackedDelete': routeIdsDelete, 'user': username},status=status.HTTP_201_CREATED)
 
 #get
 # @permission_required("can_track_routes")
 def get_routes_tracked_by_user(request):
     data = json.loads(request.body)
     username = data.get('username')
+    print(username)
     routesSent = Route.objects.filter(RoutesClimbedByUsers = User.objects.get(username = username))
-    return JsonResponse({'routesClimbedByUser': routesSent})
+    serializer = RouteSerializer(data=routesSent, many=True)
+    if serializer.is_valid():
+        serializer.save()
+    return JsonResponse({'routesClimbedByUser': serializer.data})
           
           

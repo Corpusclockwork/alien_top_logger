@@ -11,21 +11,6 @@ export default {
         }
     },
     methods: {
-        async createUser(){
-            const response = await fetch("http://127.0.0.1:8000/api/v1/newuser/", {
-                method: "POST",
-                headers: {
-                    'Accept': 'application/json'
-                },
-                credentials: "include",
-                body: JSON.stringify({
-                    username: this.username, 
-                    password: this.password, 
-                    isClimbingStaffMember: this.isClimbingStaffMember
-                })
-            });
-            console.log(response);
-        },
         checkPasswordsAreEqual(){
             if (this.repeatPassword === this.password) {
                 this.passwordsAreEqual = true;
@@ -73,7 +58,7 @@ export default {
         </div>
         <div v-show="!passwordsAreEqual" class="passwordWarning"> Passwords don't match !</div>
         <div class="createUserPageButtonContainer">
-            <button @click="createUser()" type="button" class="createUserPageButton createUserButton" :disabled="!passwordsAreEqual || password === ''"> Create User</button>
+            <button @click="$emit('createUser', {username: username, password: password, isClimbingStaffMember: isClimbingStaffMember})" type="button" class="createUserPageButton createUserButton" :disabled="!passwordsAreEqual || password === ''"> Create User</button>
             <button @click="displayLoginPage()" type="button" class="createUserPageButton">Go to Login Page</button>
         </div>
     </div>

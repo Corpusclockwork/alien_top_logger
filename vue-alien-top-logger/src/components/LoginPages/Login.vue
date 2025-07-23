@@ -8,40 +8,13 @@ export default {
             isClimbingStaffMember: false,
         }
     },
-    props:{
-        csrfToken: String,
-    },
     methods:{
-        async loginUser() {
-            const response = await fetch("http:///localhost:8000/api/v1/accounts/login/", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": this.csrfToken
-                },
-                credentials: "include",
-                body: JSON.stringify({
-                    username: this.username, 
-                    password: this.password
-                })
-            });
-            if (response.ok == true){
-                const data = await response.json();
-                this.$emit("userAuthenticated");
-                this.$emit("username", data.username);
-                this.$emit("isClimbingStaffMember", data.isClimbingStaffMember);
-                // update the CSRF token 
-                this.$emit("updateCSRFToken");
-                
-            }
-        },
         displayNewUserPage(){
             this.$emit("toggleLoginPages");
         }
     }
 }
 </script>
-
 <template>
     <div class="loginPage">
         <div class="loginPageHeader">
@@ -56,14 +29,12 @@ export default {
             <input v-model="password" type="password" class="loginPageSectionText form-control" id="passwordinput" aria-describedby="passwordHelp" placeholder="Enter password">
         </div>
         <div class="loginPageButtonContainer">
-            <button @click="loginUser()" type="button" class="loginPageButton" :disabled="username === '' || password === ''">Login</button>
+            <button @click="$emit('loginUser', {username: username, password: password})" type="button" class="loginPageButton" :disabled="username === '' || password === ''">Login</button>
             <button @click="displayNewUserPage()" type="button" class="loginPageButton">Create a New User</button>
         </div>
     </div>
 </template>
-
 <style>
-
 .loginPage {
     padding: 10%;
     line-height: 1;

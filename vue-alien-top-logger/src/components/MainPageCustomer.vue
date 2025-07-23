@@ -1,15 +1,14 @@
 <script>
 import ImageMarker from './ClimbingWallMap/ImageMarker.vue';
 export default {
-    name: 'MainPage',
+    name: 'MainPageCustomer',
     data: function () {
         return {
-            allRoutes: undefined,
-            RouteGradeRangeSelected: null,
-            RouteHoldColourSelected: null,
-            routesClimbedByUser: [], // will need to populate this from the backend at some point 
-            routesToDeleteFromDatabase: [],
-            newRoutesToSave: [],
+            allRoutes: null,
+            RouteGradeRangeSelected: "",
+            RouteHoldColourSelected: "",
+            routesClimbedByUserInSession: [], 
+            routesClimbedByUserInDatabase: [],
             filteredRoutes: []
         }
     },
@@ -23,6 +22,7 @@ export default {
     },
     created() {
         this.getRoutes();
+        this.getTrackedRoutesForUser(); 
     },
     methods: {
         async getRoutes() {
@@ -34,71 +34,51 @@ export default {
             });
             console.log(this.allRoutes);
         },
-        async saveNewRoutesInDatabase() {
-            console.log(this.csrfToken);
-            this.newRoutesToSave.forEach((route) => {delete route.RouteId});
-            const response = await fetch("http://localhost:8000/api/v1/routes/create/", {
+        async getTrackedRoutesForUser() {
+            const response = await fetch('http://localhost:8000/api/v1/routes/getuserroutes/', {
+                credentials: "include",
+                // look, we are getting sensitive data so I'm using a POST request, you can take it up with my manager who is also me :)))
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json',
                     "X-CSRFToken": this.csrfToken
                 },
-                credentials: "include",
-                body: JSON.stringify(this.newRoutesToSave)
+                body: JSON.stringify({'username': this.username})
             });
+            const data = await response.json();
+            this.routesClimbedByUserInDatabase = data.routesClimbedByUser;
         },
-        async deleteRoutesFromDatabase() {
-            const ids = this.routesToDeleteFromDatabase.map(route => route.RouteId);
-            const response = await fetch("http://localhost:8000/api/v1/routes/delete/", {
-                credentials: "include",
-                method: "DELETE",
-                headers: {
-                    'Content-Type': 'application/json',
-                    "X-CSRFToken": this.csrfToken
-                },
-                body: JSON.stringify(ids)
-            });
-        },
-         async trackRoutesInDatabase() {
-            const routeIds = this.routesClimbedByUser.map(route => route.RouteId);
-            const response = await fetch("http://localhost:8000/api/v1/routes/track/", {
+        async trackRoutesInDatabase() {
+            const routeIdsAdd = this.routesClimbedByUserInSession.map(route => route.RouteId);
+            const response = await fetch("http://localhost:8000/api/v1/routes/track", {
                 credentials: "include",
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json',
                     "X-CSRFToken": this.csrfToken
                 },
-                body: JSON.stringify({'username': this.username, 'routeIds': routeIds})
+                body: JSON.stringify({'username': this.username, 'routesClimbedByUser': routeIdsAdd})
             });
         },
         async saveToDatabase(){
-            if(this.newRoutesToSave.length > 0){
-                await this.saveNewRoutesInDatabase() ;
-            }
-            if(this.routesToDeleteFromDatabase.length > 0){
-                await this.deleteRoutesFromDatabase();
-            }
-            if (this.routesClimbedByUser.length > 0) {
+            if (this.routesClimbedByUserInSession.length > 0 ) {
                 await this.trackRoutesInDatabase()
             }
-            this.newRoutesToSave = [];
-            this.routesToDeleteFromDatabase = [];
-            this.RouteGradeRangeSelected = null;
-            this.RouteHoldColourSelected = null;
+            this.RouteGradeRangeSelected = "";
+            this.RouteHoldColourSelected = "";
             this.getRoutes();
         },
         FilterRoutes(routeSelected){
             this.filteredRoutes = [];
-
             if(routeSelected){
                 this.filteredRoutes.push(routeSelected);
-                this.RouteGradeRangeSelected = null;
-                this.RouteHoldColourSelected = null;
+                this.RouteGradeRangeSelected = "";
+                this.RouteHoldColourSelected = "";
                 return;
             }
-            
             this.allRoutes.forEach(route => {
                 //ugly but functional
+                //("" is false in javascript)
                 if ((!this.RouteHoldColourSelected && this.RouteGradeRangeSelected) && (route.RouteGradeRange === this.RouteGradeRangeSelected)){
                     this.filteredRoutes.push(route);
                 } else if ((!this.RouteGradeRangeSelected && this.RouteHoldColourSelected) && (route.RouteColour === this.RouteHoldColourSelected)){
@@ -117,36 +97,13 @@ export default {
                 }
             });
         },
-        staffAddNewRoute(newRoute){
-            // generate a new id for the route (negative)
-            newRoute.RouteId = -(this.newRoutesToSave.length + 1);
-            this.newRoutesToSave.push(newRoute);
-            this.FilterRoutes();
-        }, 
-        staffEditRoute(destroyRouteObject){
-            if (destroyRouteObject.id < 0) {
-                const indexOfRouteToRemove = this.newRoutesToSave.indexOf((route) => route.RouteId === destroyRouteObject.id);
-                // delete fr fr rn as the route doesn't exist in the backend yet
-                this.newRoutesToSave.splice(indexOfRouteToRemove, 1);   
-                // since something has changed that the user can see on the climbing wall map, we should filter again 
-                this.FilterRoutes(); 
-            } else {
-                if(destroyRouteObject.destroyRoute) {
-                    const routeToDestroy = this.allRoutes.find((route) => route.RouteId === destroyRouteObject.id);
-                    this.routesToDeleteFromDatabase.push(routeToDestroy)
-                } else {
-                    const indexOfRouteToRemove = this.routesToDeleteFromDatabase.indexOf((route) => route.RouteId === destroyRouteObject.id);
-                    this.routesToDeleteFromDatabase.splice(indexOfRouteToRemove, 1); 
-                }  
-            }
-        },
         customerEditRoute(customerEditRouteObject){
             const routeToTrack = this.allRoutes.find((route) => route.RouteId === customerEditRouteObject.id);
             if(customerEditRouteObject.climbedByUser){
-                this.routesClimbedByUser.push(routeToTrack);
+                this.routesClimbedByUserInSession.push(routeToTrack);
             } else {
-                const indexOfRouteToRemove = this.routesClimbedByUser.indexOf((route) => route.id === customerEditRouteObject.id);
-                this.routesClimbedByUser.splice(indexOfRouteToRemove, 1);
+                const indexOfRouteToRemove = this.routesClimbedByUserInSession.indexOf((route) => route.id === customerEditRouteObject.id);
+                this.routesClimbedByUserInSession.splice(indexOfRouteToRemove, 1);
             }
         },
         logOutUser() {
@@ -155,12 +112,12 @@ export default {
     },
     watch : {
         RouteGradeRangeSelected() {
-            if(this.RouteGradeRangeSelected !== null){
+            if(this.RouteGradeRangeSelected !== ""){
                 this.FilterRoutes();
             }
         },
         RouteHoldColourSelected(){
-            if(this.RouteHoldColourSelected !== null){
+            if(this.RouteHoldColourSelected !== ""){
                 this.FilterRoutes();
             } 
         }
@@ -171,30 +128,22 @@ export default {
     <div class="mainPage">
         <div class="mainPageHeaderSection">
             <button @click="logOutUser()" type="button" class="loginButton btn btn-primary">Logout User</button>
-            <div v-if="!isClimbingStaffMember" class="MainPageHeader">
+            <div>{{username}}</div>
+            <div class="MainPageHeader">
                 Track Routes
-            </div>
-            <div v-if="isClimbingStaffMember" class="MainPageHeader">
-                Edit Routes
             </div>
             <button @click="saveToDatabase();"class="SaveChanges"> 
                 <div>Save changes to the database</div>
             </button>
         </div>
         <div class="mainPageBodySection">
-            <div v-if="isClimbingStaffMember" class="addRoute"> 
-                <div>Click on map to add a route</div>
-            </div>
             <div>
                 <ImageMarker
+                    :isClimbingStaffMember = this.isClimbingStaffMember
                     :filteredRoutes = this.filteredRoutes
-                    :newRoutes = this.newRoutesToSave
-                    :routesToDeleteFromDatabase = this.routesToDeleteFromDatabase
-                    :routesClimbedByUser = this.routesClimbedByUser
-                    @staffAddNewRoute="staffAddNewRoute"
-                    @staffEditRoute="staffEditRoute"
+                    :routesClimbedByUserInDatabase = this.routesClimbedByUserInDatabase
+                    :routesClimbedByUserInSession = this.routesClimbedByUserInSession
                     @customerEditRoute="customerEditRoute"
-                    :isClimbingStaffMember="this.isClimbingStaffMember"
                 />
             </div>
             <form class="mainPageForm"> 
@@ -203,7 +152,8 @@ export default {
                     <div class="filterSubsection">
                         <div class="filterSubsectionHeader">Grade:</div>
                         <select class="form-select mainPageSelectForm" id="RouteGradeRange" v-model="RouteGradeRangeSelected">
-                            <option  value='V0-V2'>V0-V2</option>
+                            <option value="" selected>Not specified</option>
+                            <option value='V0-V2'>V0-V2</option>
                             <option value="V1-V3">V1-V3</option>
                             <option value="V2-V4">V2-V4</option>
                         </select>
@@ -211,6 +161,7 @@ export default {
                     <div class="filterSubsection">
                         <div class="filterSubsectionHeader">Hold Colour:</div>
                         <select class="form-select mainPageSelectForm" id="RouteHoldColour" v-model="RouteHoldColourSelected">
+                            <option value="" selected>Not specified</option>
                             <option value="RED">RED</option>
                             <option value="BLUE">BLUE</option>
                             <option value="GREEN">GREEN</option>
@@ -218,10 +169,25 @@ export default {
                     </div>
                 </div>
                 <div class="mainPageFormSection">
-                    <div class="mainPageFormMiddleSection" v-if=" !isClimbingStaffMember">
-                        Routes climbed By You:
-                        <div v-show="this.routesClimbedByUser.length > 0" class="editRoutesSectionList">
-                            <div class="list-group overflow-scroll" v-for="route in this.routesClimbedByUser">
+                    <div class="mainPageFormMiddleSection">
+                        <div v-show="this.routesClimbedByUserInSession.length > 0">
+                            <div>Routes climbed By You this session:</div>
+                            <div class="editRoutesSectionList">
+                                <div class="list-group overflow-scroll" v-for="route in this.routesClimbedByUserInSession.added">
+                                    <div @click="FilterRoutes(route)" class="list-group-item"> 
+                                        <div> {{ route.RouteColour }}</div>
+                                        <div> {{ route.RouteGradeRange }}</div>
+                                        <div> <span class="fw-bold">Location: </span> {{ route.RouteLocationXAxis }}, {{ route.RouteLocationYAxis }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div v-show="this.routesClimbedByUserInSession.length === 0" class="mainPageFormMiddleSectionWarning fw-bold">
+                            No routes tracked by you this session
+                        </div>
+                        <div>Routes climbed By You in Database:</div>
+                        <div v-show="this.routesClimbedByUserInDatabase.length > 0" class="editRoutesSectionList">
+                            <div class="list-group overflow-scroll" v-for="route in this.routesClimbedByUserInDatabase">
                                 <div @click="FilterRoutes(route)" class="list-group-item"> 
                                     <div> {{ route.RouteColour }}</div>
                                     <div> {{ route.RouteGradeRange }}</div>
@@ -229,43 +195,8 @@ export default {
                                 </div>
                             </div>
                         </div>
-
-                        <div v-show="this.routesClimbedByUser.length === 0" class="mainPageFormMiddleSectionWarning fw-bold">
-                            No routes tracked by you
-                        </div>
-
-                    </div>
-                    <div class="mainPageFormMiddleSection" v-if="isClimbingStaffMember">
-                        <div>
-                            Routes <span class="fw-bold">added</span> by you just now:
-                            <div v-show="this.newRoutesToSave.length > 0" class="editRoutesSectionList">
-                                <div class="list-group overflow-scroll" v-for="route in this.newRoutesToSave">
-                                    <div @click="FilterRoutes(route)" class="list-group-item"> 
-                                        <div> {{ route.RouteColour }}</div>
-                                        <div> {{ route.RouteGradeRange }}</div>
-                                        <div> <span class="fw-bold">Location: </span> {{ route.RouteLocationXAxis }}, {{ route.RouteLocationYAxis }}</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div v-show="this.newRoutesToSave.length === 0" class="mainPageFormMiddleSectionWarning fw-bold">
-                                No routes added by you
-                            </div>
-                        </div>
-                        <div>
-                            Routes <span class="fw-bold">deleted</span> by you just now:  
-                            <div v-show="this.routesToDeleteFromDatabase.length > 0" class="editRoutesSectionList">
-                                <div class="list-group overflow-scroll" v-for="route in this.routesToDeleteFromDatabase">
-                                    <div @click="FilterRoutes(route)" class="list-group-item"> 
-                                        <div> {{ route.RouteColour }}</div>
-                                        <div> {{ route.RouteGradeRange }}</div>
-                                        <div> <span class="fw-bold">Location: </span> {{ route.RouteLocationXAxis }}, {{ route.RouteLocationYAxis }}</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div v-show="this.routesToDeleteFromDatabase.length === 0" class="mainPageFormMiddleSectionWarning fw-bold">
-                                No routes deleted by you 
-                            </div>
+                        <div v-show="this.routesClimbedByUserInDatabase.length === 0" class="mainPageFormMiddleSectionWarning fw-bold">
+                            No routes tracked by you in the database
                         </div>
                     </div>
                 </div>
@@ -287,15 +218,6 @@ export default {
     </div>
 </template>
 <style>
-/* .mainPage {
-    margin: 5%;
-    line-height: 1;
-    margin-bottom: 0%;
-    background: rgba(255, 255, 255, 0.85);
-    font-size: 1em;
-    border-radius: 5px;
-} */
-
 .mainPage {
     padding: 2% 10% 10% 10%;
     line-height: 1;

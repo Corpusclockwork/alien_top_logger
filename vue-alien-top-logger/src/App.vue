@@ -1,12 +1,14 @@
 <script>
 import Login from './components/LoginPages/Login.vue';
-import MainPage from './components/MainPage.vue';
+import MainPageStaff from './components/MainPageStaff.vue';
+import MainPageCustomer from './components/MainPageCustomer.vue';
 import NewUser from './components/LoginPages/NewUser.vue';
 export default {
     name: "App",
     components: {
         Login,
-        MainPage,
+        MainPageStaff,
+        MainPageCustomer,
         NewUser
     },
     data: function () {
@@ -16,15 +18,18 @@ export default {
             username: "",
             displayLoginPage: true,
             isClimbingStaffMember: undefined,
-            displayMainPage: false
+            displayMainPage: false,
+            messageToDisplay: ""
         }
     },
     created() {
-        this.session();
+        this.setCSRFToken();
+        this.whoAmI();
     },
     methods: {
-        getCookie(name) {
+        getCSRFToken() {
             let cookieValue = null;
+            const name = 'csrftoken'
             if (document.cookie && document.cookie !== '') {
                 const cookies = document.cookie.split(';');
                 for (let i = 0; i < cookies.length; i++) {
@@ -38,51 +43,118 @@ export default {
             }
             return cookieValue;
         },
-        async session() {
-            const response = await fetch("http://localhost:8000/api/v1/session/", {
-                credentials: "include"
+        async loginUser(username, password) {
+            const response = await fetch("http:///localhost:8000/api/v1/login/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": this.getCSRFToken
+                },
+                credentials: "include",
+                body: JSON.stringify({
+                    username: username, 
+                    password: password
+                })
             });
-            const data = await response.json()
-            console.log(data);
+            const data = await response.json();
+            if (response.ok == true){
+                this.whoAmI();
+            } else {
+                // failed to log in
+                this.messageToDisplay= "Login details incorrect"
+            }
+        },
+        async logoutUser() {
+            try {
+                const response = await fetch("http://localhost:8000/api/v1/logout/", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': this.getCSRFToken(),
+                    },
+                    credentials: 'include',
+                })
+                if (response.ok) {
+                    this.isAuthenticated = false;
+                    this.username = "";
+                    this.isClimbingStaffMember = undefined;
+                }
+            } catch(error) {
+                console.error('Logout failed', error)
+                this.messageToDisplay= "Log out failed"
+                throw error
+            }
+        },
+        async setCSRFToken() {
+            await fetch("http://localhost:8000/api/v1/session/",{
+                credentials: "include"
+            })        
+        },
+        async whoAmI() {
+            const response = await fetch("http://localhost:8000/api/v1/whoami/",{
+                credentials: "include",
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': this.getCSRFToken(),
+                },
+            });
+            const data = await response.json();
             if (data.isAuthenticated){
                 this.isAuthenticated = true;
-                this.isClimbingStaffMember = data.isClimbingStaffMember
-                this.username = data.username
+                this.username = data.username;
+                this.isClimbingStaffMember = data.isClimbingStaffMember;
             } else {
                 this.isAuthenticated = false;
             }
-            this.csrfToken = this.getCookie("csrftoken");
         },
-        async logoutUser() {
-            const response = await fetch("http://localhost:8000/api/v1/logout/", {
+        async createUser(username, password, isClimbingStaffMember){
+            const response = await fetch("http://127.0.0.1:8000/api/v1/newuser/", {
+                method: "POST",
+                headers: {
+                    'Accept': 'application/json'
+                },
                 credentials: "include",
-            })
+                body: JSON.stringify({
+                    username: username, 
+                    password: password, 
+                    isClimbingStaffMember: isClimbingStaffMember
+                })
+            });
             if (response.ok) {
-                this.isAuthenticated = false
+                // created user
+                this.messageToDisplay= "Created User" 
+            } else {
+                 // failed to create user 
+                 this.messageToDisplay= "Failed to create user"
             }
         }
     }
 }
 </script>
 <template>
-    <MainPage 
-        v-if="isAuthenticated"
-        :isClimbingStaffMember="isClimbingStaffMember"
-        :csrfToken="csrfToken"
+    <MainPageStaff 
+        v-if="isAuthenticated && isClimbingStaffMember"
+        :csrfToken="getCSRFToken()"
         :username="username"
-        :updateCSRFToken="csrfToken = getCookie('csrftoken')"
         @logoutUser="logoutUser()"
-    ></MainPage>
+        :messageToDisplay="messageToDisplay"
+    ></MainPageStaff>
+     <MainPageCustomer
+        v-if="isAuthenticated && !isClimbingStaffMember"
+        :csrfToken="getCSRFToken()"
+        :username="username"
+        :messageToDisplay="messageToDisplay"
+        @logoutUser="logoutUser()"
+    ></MainPageCustomer>
     <Login
         v-else-if="displayLoginPage && !isAuthenticated"
-        @userAuthenticated="isAuthenticated = true"
-        @username="(value) => {username = value}"
-        @isClimbingStaffMember="(value)=> {isClimbingStaffMember = value}"
+        :messageToDisplay="messageToDisplay"
+        @login="loginUser(username, password)"
         @toggleLoginPages="displayLoginPage = false"
-        :csrfToken="csrfToken"
     ></Login>
     <NewUser
         v-else-if="!displayLoginPage && !isAuthenticated"
+        :messageToDisplay="messageToDisplay"
+        @createUser="createUser(username, password, isClimbingStaffMember)"
         @toggleLoginPages="displayLoginPage = true"
     ></NewUser>
 </template>
