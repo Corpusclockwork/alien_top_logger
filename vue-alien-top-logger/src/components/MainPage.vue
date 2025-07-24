@@ -1,6 +1,5 @@
 <script>
 import ImageMarker from './ClimbingWallMap/ImageMarker.vue';
-import "../style.css";
 export default {
     name: 'MainPage',
     data: function () {
@@ -8,11 +7,13 @@ export default {
             allRoutes: null,
             RouteGradeRangeSelected: "",
             RouteHoldColourSelected: "",
+            gradeRanges:[],
+            holdColours:[],
             // ------------------STAFF -------------------------
             routesToDeleteFromDatabase: [],
             routesToAddToDatabase: [],
             // -------------------------------------------------
-            // -----------------CUTSOMER-------------------------
+            // -----------------CUSTOMER-------------------------
             routesClimbedByUserInSession: [], 
             routesClimbedByUserInDatabase: [],
             // -------------------------------------------------
@@ -29,6 +30,8 @@ export default {
     },
     created() {
         this.getRoutes();
+        this.getGradeRanges();
+        this.getHoldColours();
         // --------------------------CUSTOMER-------------------
         if (!this.isClimbingStaffMember) {
             this.getTrackedRoutesForUser(); 
@@ -45,6 +48,18 @@ export default {
                 return new Date(b.RouteCreatedAt) - new Date(a.RouteCreatedAt);
             });
             console.log(this.allRoutes);
+        },
+        async getGradeRanges() {
+            const response = await fetch('http://localhost:8000/api/v1/routes/graderanges/');
+            const data = await response.json()
+            this.gradeRanges = data.gradeRanges;
+            console.log(this.gradeRanges);
+        },
+        async getHoldColours() {
+            const response = await fetch('http://localhost:8000/api/v1/routes/holdcolours/');
+            const data = await response.json()
+            this.holdColours = data.holdColours;
+            console.log(this.holdColours);
         },
         async saveToDatabase(){
             // ------------------------STAFF ------------------------------
@@ -79,8 +94,6 @@ export default {
                 this.RouteHoldColourSelected = "";
                 return;
             }
-            console.log(this.RouteHoldColourSelected);
-            console.log(this.RouteGradeRangeSelected);
             if (!this.RouteHoldColourSelected && !this.RouteGradeRangeSelected){
                 return;
             }
@@ -263,20 +276,20 @@ export default {
                     <div v-if="!RouteGradeRangeSelected && !RouteHoldColourSelected"class="applyFilters"> Apply filters to see routes on the map</div>
                     <div class="filterSubsection">
                         <div class="filterSubsectionHeader">Grade:</div>
-                        <select class="form-select mainPageSelectForm" id="RouteGradeRange" v-model="RouteGradeRangeSelected">
+                        <select class="mainPageSelectForm" id="RouteGradeRange" v-model="RouteGradeRangeSelected">
                             <option value="" selected>Not specified</option>
-                            <option value='V0-V2'>V0-V2</option>
-                            <option value="V1-V3">V1-V3</option>
-                            <option value="V2-V4">V2-V4</option>
+                            <option v-for="gradeRange in gradeRanges" :value=gradeRange :key="gradeRange">
+                                {{gradeRange}}
+                            </option>
                         </select>
                     </div>
                     <div class="filterSubsection">
                         <div class="filterSubsectionHeader">Hold Colour:</div>
-                        <select class="form-select mainPageSelectForm" id="RouteHoldColour" v-model="RouteHoldColourSelected">
+                        <select class="mainPageSelectForm" id="RouteHoldColour" v-model="RouteHoldColourSelected">
                             <option value="" selected>Not specified</option>
-                            <option value="RED">RED</option>
-                            <option value="BLUE">BLUE</option>
-                            <option value="GREEN">GREEN</option>
+                            <option v-for="holdColour in holdColours" :value=holdColour :key="holdColour">
+                                {{holdColour}}
+                            </option>
                         </select>
                     </div>
                 </div>
@@ -402,10 +415,11 @@ export default {
 .mainPageFormSection {
     flex: 1;
 }
-@media only screen and (max-width: 500px) {
+@media only screen and (max-width: 600px) {
     .mainPageForm {
         display: flex;
         flex-direction: column;
+        padding: 5%;
     }
 }
 .mainPageHeaderSection {
@@ -475,17 +489,19 @@ export default {
 .mainPageSelectForm {
     flex: 1 1;
     padding: 2%;
+    border-width: 3px;
+    border-radius: 5px;
+    border-color: #E9704B;
+    margin: 5px;
+    background-color: #E9704B;
+    color: white;
+    font-weight: bold;
 }
 .mainPageSelectForm:hover {
      cursor: pointer; 
 }
 .mainPageFormMiddleSection {
     padding: 5%;
-}
-.form-select {
-    border-width: 3px;
-    border-radius: 5px;
-    border-color: #E9704B;
 }
 .mainPageFormMiddleSectionWarning {
     background-color: #E9704B;

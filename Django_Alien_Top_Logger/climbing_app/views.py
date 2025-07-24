@@ -92,6 +92,13 @@ def route_list(self):
     serializer = RouteSerializer(routes, many=True)
     return JsonResponse({'routes': serializer.data})
 
+def route_grade_ranges(self):
+    # we just need the label in the front end, choices are (value, label) tuples
+    return JsonResponse({'gradeRanges': [choice[1] for choice in Route.RouteGradeRangeClass.choices]})
+
+def route_hold_colours(self):
+    # we just need the label in the front end, choices are (value, label) tuples
+    return JsonResponse({'holdColours': [choice[1] for choice in Route.RouteColourClass.choices]})
 #------- Add Delete Routes -----------------------------------------
 #post
 # @permission_required("can_add_routes")
