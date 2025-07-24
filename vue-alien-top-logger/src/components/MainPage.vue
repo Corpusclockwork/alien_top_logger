@@ -1,14 +1,20 @@
 <script>
 import ImageMarker from './ClimbingWallMap/ImageMarker.vue';
 export default {
-    name: 'MainPageStaff',
+    name: 'MainPage',
     data: function () {
         return {
             allRoutes: null,
             RouteGradeRangeSelected: "",
             RouteHoldColourSelected: "",
+            // ------------------STAFF -------------------------
             routesToDeleteFromDatabase: [],
             routesToAddToDatabase: [],
+            // -------------------------------------------------
+            // -----------------CUTSOMER-------------------------
+            routesClimbedByUserInSession: [], 
+            routesClimbedByUserInDatabase: [],
+            // -------------------------------------------------
             filteredRoutes: []
         }
     },
@@ -22,10 +28,15 @@ export default {
     },
     created() {
         this.getRoutes();
-        this.getTrackedRoutesForUser(); 
+        // --------------------------CUSTOMER-------------------
+        if (!this.isClimbingStaffMember) {
+            this.getTrackedRoutesForUser(); 
+        }
+        // -----------------------------------------------------
     },
     methods: {
-        async getRoutes() {
+        // ------------------------------------------ STAFF AND CUSTOMER ------------------------------------------------------
+         async getRoutes() {
             const response = await fetch('http://localhost:8000/api/v1/routes/');
             const data = await response.json()
              this.allRoutes = data.routes;
@@ -34,43 +45,30 @@ export default {
             });
             console.log(this.allRoutes);
         },
-        async saveNewRoutesInDatabase() {
-            //clear the negative ids we have been using for the routes
-            this.routesToAddToDatabase.forEach((route) => {delete route.RouteId});
-            const response = await fetch("http://localhost:8000/api/v1/routes/create/", {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json',
-                    "X-CSRFToken": this.csrfToken
-                },
-                credentials: "include",
-                body: JSON.stringify(this.routesToAddToDatabase)
-            });
-        },
-        async deleteRoutesFromDatabase() {
-            const ids = this.routesToDeleteFromDatabase.map(route => route.RouteId);
-            const response = await fetch("http://localhost:8000/api/v1/routes/delete/", {
-                credentials: "include",
-                method: "DELETE",
-                headers: {
-                    'Content-Type': 'application/json',
-                    "X-CSRFToken": this.csrfToken
-                },
-                body: JSON.stringify(ids)
-            });
-        },
         async saveToDatabase(){
-            if(this.routesToAddToDatabase.length > 0){
-                await this.saveNewRoutesInDatabase() ;
+            // ------------------------STAFF ------------------------------
+            if (this.isClimbingStaffMember){
+                if(this.routesToAddToDatabase.length > 0){
+                    await this.saveNewRoutesInDatabase() ;
+                }
+                if(this.routesToDeleteFromDatabase.length > 0){
+                    await this.deleteRoutesFromDatabase();
+                }
+                this.routesToAddToDatabase = [];
+                this.routesToDeleteFromDatabase = [];
+                await this.getRoutes();
+            // ----------------------------- ------------------------------
+            // ------------------------CUSTOMER ------------------------------
+            } else if (!this.isClimbingStaffMember){
+                if(this.routesClimbedByUserInSession.length > 0){
+                    await this.trackRoutesInDatabase() ;
+                }
+                await this.getTrackedRoutesForUser();
+                this.routesClimbedByUserInSession = [];
             }
-            if(this.routesToDeleteFromDatabase.length > 0){
-                await this.deleteRoutesFromDatabase();
-            }
-            this.routesToAddToDatabase = [];
-            this.routesToDeleteFromDatabase = [];
+            // -----------------------------------------------------------
             this.RouteGradeRangeSelected = "";
             this.RouteHoldColourSelected = "";
-            this.getRoutes();
         },
         FilterRoutes(routeSelected){
             this.filteredRoutes = [];
@@ -101,6 +99,33 @@ export default {
                 }
             });
         },
+        // --------------------------------------------------------------------------------
+        // -------------------------STAFF --------------------------------------------------
+        async saveNewRoutesInDatabase() {
+            //clear the negative ids we have been using for the routes
+            this.routesToAddToDatabase.forEach((route) => {delete route.RouteId});
+            const response = await fetch("http://localhost:8000/api/v1/routes/create/", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                    "X-CSRFToken": this.csrfToken
+                },
+                credentials: "include",
+                body: JSON.stringify(this.routesToAddToDatabase)
+            });
+        },
+        async deleteRoutesFromDatabase() {
+            const ids = this.routesToDeleteFromDatabase.map(route => route.RouteId);
+            const response = await fetch("http://localhost:8000/api/v1/routes/delete/", {
+                credentials: "include",
+                method: "DELETE",
+                headers: {
+                    'Content-Type': 'application/json',
+                    "X-CSRFToken": this.csrfToken
+                },
+                body: JSON.stringify(ids)
+            });
+        },
         staffAddNewRoute(newRoute){
             // generate a new id for the route (negative)
             newRoute.RouteId = -(this.routesToAddToDatabase.length + 1);
@@ -124,9 +149,49 @@ export default {
                 }  
             }
         },
+        // ------------------------------------------------------------------------------------------
+        // ----------------------------------------------CUSTOMER-------------------------------------
+        async getTrackedRoutesForUser() {
+            const response = await fetch('http://localhost:8000/api/v1/routes/getuserroutes/', {
+                credentials: "include",
+                // look, we are getting sensitive data so I'm using a POST request, you can take it up with my manager who is also me :)))
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                    "X-CSRFToken": this.csrfToken
+                },
+                body: JSON.stringify({'username': this.username})
+            });
+            const data = await response.json();
+            this.routesClimbedByUserInDatabase = data.routesClimbedByUser;
+        },
+        async trackRoutesInDatabase() {
+            const routeIdsAdd = this.routesClimbedByUserInSession.map(route => route.RouteId);
+            const response = await fetch("http://localhost:8000/api/v1/routes/track/", {
+                credentials: "include",
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                    "X-CSRFToken": this.csrfToken
+                },
+                body: JSON.stringify({'username': this.username, 'routesClimbedByUser': routeIdsAdd})
+            });
+        },
+          customerEditRoute(customerEditRouteObject){
+            const routeToTrack = this.allRoutes.find((route) => route.RouteId === customerEditRouteObject.id);
+            if(customerEditRouteObject.climbedByUser){
+                this.routesClimbedByUserInSession.push(routeToTrack);
+            } else {
+                const indexOfRouteToRemove = this.routesClimbedByUserInSession.indexOf((route) => route.id === customerEditRouteObject.id);
+                this.routesClimbedByUserInSession.splice(indexOfRouteToRemove, 1);
+            }
+        },
+        // ------------------------------------------------------------------------------------------------------
+        // --------------------------LOGOUT USER-------------------------------------------
         logOutUser() {
             this.$emit("logoutUser");
         }
+        // --------------------------------------------------------------------------------
     },
     watch : {
         RouteGradeRangeSelected() {
@@ -144,16 +209,26 @@ export default {
 </script>
 <template>
     <div class="mainPage">
+        <!-- -----------------------HEADER------------------------------------------------- -->
         <div class="mainPageHeaderSection">
             <button @click="logOutUser()" type="button" class="loginButton btn btn-primary">Logout User</button>
             <div>{{username}}</div>
-            <div class="MainPageHeader">
+            <!-- ----------STAFF------- -->
+            <div v-if="isClimbingStaffMember" class="MainPageHeader">
                 Edit Routes
             </div>
+            <!-- ----------------------- -->
+             <!-- ----------CUSTOMER------- -->
+            <div v-if="!isClimbingStaffMember" class="MainPageHeader">
+                Track Routes
+            </div>
+            <!-- ------------------------- -->
             <button @click="saveToDatabase();"class="SaveChanges"> 
                 <div>Save changes to the database</div>
             </button>
         </div>
+        <!-- ------------------------------------------------------------------------ -->
+         <!-- -----------------------BODY------------------------------------------------- -->
         <div class="mainPageBodySection">
             <div class="addRoute"> 
                 <div>Click on map to add a route</div>
@@ -161,14 +236,21 @@ export default {
             <div>
                 <ImageMarker
                     :isClimbingStaffMember = this.isClimbingStaffMember
+
                     :filteredRoutes = this.filteredRoutes
+
                     :routesToAddToDatabase = this.routesToAddToDatabase
                     :routesToDeleteFromDatabase = this.routesToDeleteFromDatabase
                     @staffAddNewRoute="staffAddNewRoute"
                     @staffEditRoute="staffEditRoute"
+
+                    :routesClimbedByUserInDatabase = this.routesClimbedByUserInDatabase
+                    :routesClimbedByUserInSession = this.routesClimbedByUserInSession
+                    @customerEditRoute="customerEditRoute"
                 />
             </div>
             <form class="mainPageForm"> 
+                <!-- -----------------------FILTERS------------------------------------------------- -->
                 <div class="mainPageFormSection">
                     <div class="applyFilters"> Apply filters to see routes on the map</div>
                     <div class="filterSubsection">
@@ -190,12 +272,14 @@ export default {
                         </select>
                     </div>
                 </div>
-                <div class="mainPageFormSection">
+                <!-- -------------------------------------------------------------------------- -->
+                 <!-- -----------------------------------------STAFF-------------------------- -->
+                <div v-if="isClimbingStaffMember" class="mainPageFormSection">
                     <div class="mainPageFormMiddleSection">
                         <div>
                             Routes <span class="fw-bold">added</span> by you just now:
                             <div v-show="this.routesToAddToDatabase.length > 0" class="editRoutesSectionList">
-                                <div class="list-group overflow-scroll" v-for="route in this.routesToAddToDatabase">
+                                <div class="list-group overflow-scroll" v-for="route in this.routesToAddToDatabase" :key="route.RouteId">
                                     <div @click="FilterRoutes(route)" class="list-group-item"> 
                                         <div> {{ route.RouteColour }}</div>
                                         <div> {{ route.RouteGradeRange }}</div>
@@ -211,7 +295,7 @@ export default {
                         <div>
                             Routes <span class="fw-bold">deleted</span> by you just now:  
                             <div v-show="this.routesToDeleteFromDatabase.length > 0" class="editRoutesSectionList">
-                                <div class="list-group overflow-scroll" v-for="route in this.routesToDeleteFromDatabase">
+                                <div class="list-group overflow-scroll" v-for="route in this.routesToDeleteFromDatabase" :key="route.RouteId">
                                     <div @click="FilterRoutes(route)" class="list-group-item"> 
                                         <div> {{ route.RouteColour }}</div>
                                         <div> {{ route.RouteGradeRange }}</div>
@@ -225,10 +309,46 @@ export default {
                         </div>
                     </div>
                 </div>
+                <!-- -------------------------------------------------------------------------- -->
+                 <!-- -------------------------------CUSTOMER--------------------------------- -->
+                  <div v-if="!isClimbingStaffMember" class="mainPageFormSection">
+                    <div class="mainPageFormMiddleSection">
+                        <div v-show="this.routesClimbedByUserInSession.length > 0">
+                            <div>Routes climbed By You this session:</div>
+                            <div class="editRoutesSectionList">
+                                <div class="list-group overflow-scroll" v-for="route in this.routesClimbedByUserInSession" :key="route.RouteId">
+                                    <div @click="FilterRoutes(route)" class="list-group-item"> 
+                                        <div> {{ route.RouteColour }}</div>
+                                        <div> {{ route.RouteGradeRange }}</div>
+                                        <div> <span class="fw-bold">Location: </span> {{ route.RouteLocationXAxis }}, {{ route.RouteLocationYAxis }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div v-show="this.routesClimbedByUserInSession.length === 0" class="mainPageFormMiddleSectionWarning fw-bold">
+                            No routes tracked by you this session
+                        </div>
+                        <div>Routes climbed By You in Database:</div>
+                        <div v-show="this.routesClimbedByUserInDatabase.length > 0" class="editRoutesSectionList">
+                            <div class="list-group overflow-scroll" v-for="route in this.routesClimbedByUserInDatabase" :key="route.RouteId">
+                                <div @click="FilterRoutes(route)" class="list-group-item"> 
+                                    <div> {{ route.RouteColour }}</div>
+                                    <div> {{ route.RouteGradeRange }}</div>
+                                    <div> <span class="fw-bold">Location: </span> {{ route.RouteLocationXAxis }}, {{ route.RouteLocationYAxis }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div v-show="this.routesClimbedByUserInDatabase.length === 0" class="mainPageFormMiddleSectionWarning fw-bold">
+                            No routes tracked by you in the database
+                        </div>
+                    </div>
+                </div>
+                  <!-- -------------------------------------------------------------------------- -->
+                   <!-- -----------------------------LIST OF ROUTES---------------------------------- -->
                 <div class="mainPageFormSection listOfRoutesSection" >
                     <div class="listOfRoutesHeader">List of Routes in the Database: </div>
                     <div class="listOfRoutes">
-                        <div class="list-group overflow-scroll" v-for="route in this.allRoutes">
+                        <div class="list-group overflow-scroll" v-for="route in this.allRoutes" :key="route.RouteId">
                             <div @click="FilterRoutes(route)" class="list-group-item"> 
                                 <div> {{ route.RouteColour }}</div>
                                 <div> {{ route.RouteGradeRange }}</div>
@@ -238,20 +358,13 @@ export default {
                         </div>
                     </div>
                 </div>
+                <!-- -------------------------------------------------------------------------- -->
             </form>
         </div>
+        <!-- ----------------------------------------------------------------------- -->
     </div>
 </template>
-<style>
-/* .mainPage {
-    margin: 5%;
-    line-height: 1;
-    margin-bottom: 0%;
-    background: rgba(255, 255, 255, 0.85);
-    font-size: 1em;
-    border-radius: 5px;
-} */
-
+<style scoped>
 .mainPage {
     padding: 2% 10% 10% 10%;
     line-height: 1;

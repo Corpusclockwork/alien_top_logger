@@ -1,14 +1,12 @@
 <script>
 import Login from './components/LoginPages/Login.vue';
-import MainPageStaff from './components/MainPageStaff.vue';
-import MainPageCustomer from './components/MainPageCustomer.vue';
+import MainPage from './components/MainPage.vue';
 import NewUser from './components/LoginPages/NewUser.vue';
 export default {
     name: "App",
     components: {
         Login,
-        MainPageStaff,
-        MainPageCustomer,
+        MainPage,
         NewUser
     },
     data: function () {
@@ -136,20 +134,14 @@ export default {
 }
 </script>
 <template>
-    <MainPageStaff 
-        v-if="isAuthenticated && isClimbingStaffMember"
+    <MainPage 
+        v-if="isAuthenticated"
         :csrfToken="getCSRFToken()"
         :username="username"
-        @logoutUser="logoutUser()"
-        :messageToDisplay="messageToDisplay"
-    ></MainPageStaff>
-     <MainPageCustomer
-        v-if="isAuthenticated && !isClimbingStaffMember"
-        :csrfToken="getCSRFToken()"
-        :username="username"
+        :isClimbingStaffMember="isClimbingStaffMember"
         :messageToDisplay="messageToDisplay"
         @logoutUser="logoutUser()"
-    ></MainPageCustomer>
+    ></MainPage>
     <Login
         v-else-if="displayLoginPage && !isAuthenticated"
         :messageToDisplay="messageToDisplay"

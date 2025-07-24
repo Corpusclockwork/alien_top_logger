@@ -50,7 +50,7 @@ export default {
         },
         async trackRoutesInDatabase() {
             const routeIdsAdd = this.routesClimbedByUserInSession.map(route => route.RouteId);
-            const response = await fetch("http://localhost:8000/api/v1/routes/track", {
+            const response = await fetch("http://localhost:8000/api/v1/routes/track/", {
                 credentials: "include",
                 method: "POST",
                 headers: {
@@ -173,7 +173,7 @@ export default {
                         <div v-show="this.routesClimbedByUserInSession.length > 0">
                             <div>Routes climbed By You this session:</div>
                             <div class="editRoutesSectionList">
-                                <div class="list-group overflow-scroll" v-for="route in this.routesClimbedByUserInSession.added">
+                                <div class="list-group overflow-scroll" v-for="route in this.routesClimbedByUserInSession" :key="route.RouteId">
                                     <div @click="FilterRoutes(route)" class="list-group-item"> 
                                         <div> {{ route.RouteColour }}</div>
                                         <div> {{ route.RouteGradeRange }}</div>
@@ -187,7 +187,7 @@ export default {
                         </div>
                         <div>Routes climbed By You in Database:</div>
                         <div v-show="this.routesClimbedByUserInDatabase.length > 0" class="editRoutesSectionList">
-                            <div class="list-group overflow-scroll" v-for="route in this.routesClimbedByUserInDatabase">
+                            <div class="list-group overflow-scroll" v-for="route in this.routesClimbedByUserInDatabase" :key="route.RouteId">
                                 <div @click="FilterRoutes(route)" class="list-group-item"> 
                                     <div> {{ route.RouteColour }}</div>
                                     <div> {{ route.RouteGradeRange }}</div>
@@ -203,7 +203,7 @@ export default {
                 <div class="mainPageFormSection listOfRoutesSection" >
                     <div class="listOfRoutesHeader">List of Routes in the Database: </div>
                     <div class="listOfRoutes">
-                        <div class="list-group overflow-scroll" v-for="route in this.allRoutes">
+                        <div class="list-group overflow-scroll" v-for="route in this.allRoutes" :key="route.RouteId">
                             <div @click="FilterRoutes(route)" class="list-group-item"> 
                                 <div> {{ route.RouteColour }}</div>
                                 <div> {{ route.RouteGradeRange }}</div>
@@ -217,7 +217,7 @@ export default {
         </div>
     </div>
 </template>
-<style>
+<style scoped>
 .mainPage {
     padding: 2% 10% 10% 10%;
     line-height: 1;

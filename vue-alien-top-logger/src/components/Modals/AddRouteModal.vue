@@ -75,7 +75,7 @@ export default {
     </div>
 </div>
 </template>
-<style>
+<style scoped>
 
 .modal-body {
     font-family: "Montserrat", Sans-serif;

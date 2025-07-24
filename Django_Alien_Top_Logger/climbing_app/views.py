@@ -118,11 +118,11 @@ def delete_routes(request):
 def track_routes(request):
     data = json.loads(request.body)
     username = data.get('username')
-    routeIdsAdd = data.get('routesClimbedByUserAdd')
-    routesToTrack = Route.objects.filter(RouteId__in=routeIdsAdd)
+    routeIdsToAdd = data.get('routesClimbedByUser')
+    routesToTrack = Route.objects.filter(RouteId__in=routeIdsToAdd)
     for route in routesToTrack:
         route.RoutesClimbedByUsers.add(User.objects.get(username = username))
-    return JsonResponse({'routesTrackedAdd': routeIdsAdd},status=status.HTTP_201_CREATED)
+    return JsonResponse({'routesTrackedAdd': routeIdsToAdd},status=status.HTTP_201_CREATED)
 
 #get
 # @permission_required("can_track_routes")

@@ -28,6 +28,7 @@ export default {
         isClimbingStaffMember: Boolean
     },
     methods: {
+        // --------------------------STAFF AND CUSTOMERS----------------------------
         generateMarkers() {
             this.markers = [] ;
             this.filteredRoutes.forEach(route => {
@@ -42,6 +43,26 @@ export default {
                 )
             });
         },
+        markerSelected(marker){
+            this.selectedRoute = marker;
+        },
+        editRoute(routeStats){
+            // ------------------------------STAFF-------------------------------------------------------------
+            if(this.isClimbingStaffMember) {
+            this.$emit('staffEditRoute', {destroyRoute: routeStats.destroyRouteLocal, id: this.selectedRoute.id});
+            } 
+            // ---------------------------------------------------------------------------------------------------
+            // ------------------------------------CUSTOMER-----------------------------------------------
+            else {
+                this.$emit('customerEditRoute', {climbedByUser: routeStats.climbedByUserLocal, id: this.selectedRoute.id});
+            } 
+            // ---------------------------------------------------------------------------------------------------
+        },
+        cancelEditRoute() {
+            this.selectedRoute = null;
+        },
+        // ----------------------------------------------------------------------------
+        // ----------------------------------------------STAFF-----------------------------------------------------
         setNewRouteLocation(event) {
             if(!this.isClimbingStaffMember) {
                 return;
@@ -69,16 +90,15 @@ export default {
             this.newMarkerX  = null;
             this.newMarkerY = null;
         },
-        editRoute(routeStats){
-            this.$emit('staffEditRoute', {destroyRoute: routeStats.destroyRouteLocal, id: this.selectedRoute.id});
-            this.$emit('customerEditRoute', {climbedByUser: routeStats.climbedByUserLocal, id: this.selectedRoute.id});
+
+        // ---------------------------------------------------------------------------------------------------
+        // ------------------------------------CUSTOMER----------------------------------------------------
+        selectedRouteClimbedByUser(){
+            const climbedByUserInDatabase = this.routesClimbedByUserInDatabase.map(route => route.RouteId).includes(this.selectedRoute?.id);
+            const climbedByUserInSession = this.routesClimbedByUserInSession.map(route => route.RouteId).includes(this.selectedRoute?.id);
+            return climbedByUserInDatabase || climbedByUserInSession;
         },
-        cancelEditRoute() {
-            this.selectedRoute = null;
-        },
-        markerSelected(marker){
-            this.selectedRoute = marker;
-        }
+        // ---------------------------------------------------------------------------------------------------
     },
     watch : {
         filteredRoutes() {
@@ -113,25 +133,33 @@ export default {
             </div>
         </div>
     </div>
+    <!-- -------------------------STAFF AND CUSTOMERS--------------------------------- -->
+     <EditRouteModal
+        :isClimbingStaffMember="this.isClimbingStaffMember"
+        :marker="this.selectedRoute? this.selectedRoute : undefined" 
+
+        :selectedRouteDestroyedByUser="this.routesToDeleteFromDatabase?.includes(this.selectedRoute?.id)"
+        :selectedRouteClimbedByUser="selectedRouteClimbedByUser()"
+
+        @on-ok="editRoute"
+        @on-cancel="cancelEditRoute"  
+    />
+    <!-- ---------------------------------------------------------- -->
+    <!-- -------------------------STAFF--------------------------------- -->
     <div v-if="this.isClimbingStaffMember">
         <AddRouteModal
             :markerX= "this.newMarkerX"
             :markerY="this.newMarkerY"
+
             @on-ok="createNewRoute"
             @on-cancel="cancelNewRouteAdded"  
         />
     </div>
-    <EditRouteModal
-        :isClimbingStaffMember="this.isClimbingStaffMember"
-        :marker="this.selectedRoute? this.selectedRoute : undefined" 
-        :climbedByUser="this.routesClimbedByUserInDatabase?.includes(this.selectedRoute?.id) || this.routesClimbedByUserInSession?.includes(this.selectedRoute?.id)"
-        :destroyRoute="this.routesToDeleteFromDatabase?.includes(this.selectedRoute?.id)"
-        @on-ok="editRoute"
-        @on-cancel="cancelEditRoute"  
-    />
+    <!-- ---------------------------------------------------------- -->
+   
 </div>
 </template>
-<style>
+<style scoped>
 .ImageMarkerContainer {
     width: 100%;
     position: relative;

@@ -34,7 +34,7 @@ export default {
         </div>
     </div>
 </template>
-<style>
+<style scoped>
 .loginPage {
     padding: 10%;
     line-height: 1;
