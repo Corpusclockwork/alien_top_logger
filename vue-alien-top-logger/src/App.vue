@@ -59,7 +59,7 @@ export default {
                 this.whoAmI();
             } else {
                 // failed to log in
-                this.messageToDisplay= "Login details incorrect"
+                this.messageToDisplay= "You have entered an invalid username or password"
                 console.log(this.messageToDisplay);
             }
         },

@@ -8,6 +8,9 @@ export default {
             isClimbingStaffMember: false,
         }
     },
+    props:{
+        messageToDisplay: String
+    },
     methods:{
         displayNewUserPage(){
             this.$emit("toggleLoginPages");
@@ -20,6 +23,7 @@ export default {
         <div class="loginPageHeader">
             Login:
         </div>
+        <div class="incorrectUsernameOrPasswordWarning">{{ messageToDisplay }}</div>
         <div class="flex items-center gap-4 mb-2">
             <label for="username" class="loginPageSectionHeader font-semibold w-24">Username</label>
             <input v-model="username" type="username" class="loginPageSectionText form-control" id="usernameinput" aria-describedby="userHelp" placeholder="Enter username">
@@ -29,8 +33,8 @@ export default {
             <input v-model="password" type="password" class="loginPageSectionText form-control" id="passwordinput" aria-describedby="passwordHelp" placeholder="Enter password">
         </div>
         <div class="loginPageButtonContainer">
-            <button @click="$emit('loginUser', {username, password})" type="button" class="loginPageButton" :disabled="username === '' || password === ''">Login</button>
             <button @click="displayNewUserPage()" type="button" class="loginPageButton">Create a New User</button>
+            <button @click="$emit('loginUser', {username, password})" type="button" class="loginPageButton" :disabled="username === '' || password === ''">Login</button>
         </div>
     </div>
 </template>
@@ -52,25 +56,33 @@ export default {
     font-family: "Montserrat", Sans-serif;
 }
 
+.incorrectUsernameOrPasswordWarning {
+    font-size: 1.2rem;
+    padding-top: 10px;
+}
+
 .loginPageButtonContainer {
     display: flex;
     flex-direction: column;
     justify-self: center;
+    width: 50%;
+    padding-top: 10px;
 }
 
 .loginPageButton {
     font-size: 1.5rem;
     background-color: #E9704B;
     color: white;
-    border-color: #E9704B;
+    border: 1px solid white;
+    border-radius: 5px;
     justify-self: center;
-    border-radius: 15px;
     margin: 5px;
     padding: 10px;
 }
 
 .loginPageButton:disabled {
-    background-color: grey;
+    background-color: #c2694e;
+    opacity: 0.7;
 }
 
 .loginPageButton:hover:enabled {

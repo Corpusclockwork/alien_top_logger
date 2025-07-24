@@ -1,5 +1,6 @@
 <script>
 import ImageMarker from './ClimbingWallMap/ImageMarker.vue';
+import "../style.css";
 export default {
     name: 'MainPage',
     data: function () {
@@ -76,6 +77,11 @@ export default {
                 this.filteredRoutes.push(routeSelected);
                 this.RouteGradeRangeSelected = "";
                 this.RouteHoldColourSelected = "";
+                return;
+            }
+            console.log(this.RouteHoldColourSelected);
+            console.log(this.RouteGradeRangeSelected);
+            if (!this.RouteHoldColourSelected && !this.RouteGradeRangeSelected){
                 return;
             }
             this.allRoutes.forEach(route => {
@@ -195,44 +201,46 @@ export default {
     },
     watch : {
         RouteGradeRangeSelected() {
-            if(this.RouteGradeRangeSelected !== ""){
-                this.FilterRoutes();
-            }
+            this.FilterRoutes();
         },
         RouteHoldColourSelected(){
-            if(this.RouteHoldColourSelected !== ""){
-                this.FilterRoutes();
-            } 
+            this.FilterRoutes();
         }
     }
 }
 </script>
 <template>
+    <button @click="logOutUser()" type="button" class="logoutButton">Logout User</button>
     <div class="mainPage">
         <!-- -----------------------HEADER------------------------------------------------- -->
         <div class="mainPageHeaderSection">
-            <button @click="logOutUser()" type="button" class="loginButton btn btn-primary">Logout User</button>
-            <div>{{username}}</div>
-            <!-- ----------STAFF------- -->
-            <div v-if="isClimbingStaffMember" class="MainPageHeader">
-                Edit Routes
+            <div class="mainPageUsernameHeaderSection">
+                <div class="mainPageUsername">
+                    {{username}}
+                </div>
+                <!-- ----------STAFF------- -->
+                <div v-if="isClimbingStaffMember" class="mainPageHeader">
+                    Staff Account: Edit Routes
+                </div>
+                <!-- ----------------------- -->
+                <!-- ----------CUSTOMER------- -->
+                <div v-if="!isClimbingStaffMember" class="mainPageHeader">
+                    Track Your Routes
+                </div>
+                <!-- ------------------------- -->
             </div>
-            <!-- ----------------------- -->
-             <!-- ----------CUSTOMER------- -->
-            <div v-if="!isClimbingStaffMember" class="MainPageHeader">
-                Track Routes
-            </div>
-            <!-- ------------------------- -->
-            <button @click="saveToDatabase();"class="SaveChanges"> 
-                <div>Save changes to the database</div>
+            <button @click="saveToDatabase();"class="saveChanges"> 
+                Save changes to the database
             </button>
         </div>
         <!-- ------------------------------------------------------------------------ -->
          <!-- -----------------------BODY------------------------------------------------- -->
         <div class="mainPageBodySection">
-            <div class="addRoute"> 
+            <!-- ---------------STAFF------------ -->
+            <div v-if="isClimbingStaffMember" class="addRoute"> 
                 <div>Click on map to add a route</div>
             </div>
+            <!-- --------------------------------- -->
             <div>
                 <ImageMarker
                     :isClimbingStaffMember = this.isClimbingStaffMember
@@ -252,7 +260,7 @@ export default {
             <form class="mainPageForm"> 
                 <!-- -----------------------FILTERS------------------------------------------------- -->
                 <div class="mainPageFormSection">
-                    <div class="applyFilters"> Apply filters to see routes on the map</div>
+                    <div v-if="!RouteGradeRangeSelected && !RouteHoldColourSelected"class="applyFilters"> Apply filters to see routes on the map</div>
                     <div class="filterSubsection">
                         <div class="filterSubsectionHeader">Grade:</div>
                         <select class="form-select mainPageSelectForm" id="RouteGradeRange" v-model="RouteGradeRangeSelected">
@@ -365,21 +373,76 @@ export default {
     </div>
 </template>
 <style scoped>
+.logoutButton {
+    font-size: 3.5vw;
+    background-color: white;
+    color: black;
+    border: 1px solid black;
+    position: absolute;
+    right: 0;
+}
+.logoutButton:hover:enabled {
+    background-color: #802f2f;
+}
+/* ---------------------- Main Page------------------ */
 .mainPage {
-    padding: 2% 10% 10% 10%;
+    padding: 10% 10% 10% 10%;
     line-height: 1;
     border-radius: 5px;
     color: white;
     font-size: 1rem;
     display: grid;
 }
-
-#select:focus {
-    border-color: #66afe9;
-    outline: 0;
-    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(255,175,233,.6);
-    box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(255,175,233,.6);
+.mainPageForm {
+    padding: 2%;
+    display: flex;
+    font-family: "Montserrat", Sans-serif;
+    max-width: 100%;
 }
+.mainPageFormSection {
+    flex: 1;
+}
+@media only screen and (max-width: 500px) {
+    .mainPageForm {
+        display: flex;
+        flex-direction: column;
+    }
+}
+.mainPageHeaderSection {
+    display: flex;
+    justify-content: space-between;
+    background: rgba(0, 0, 0, 1);
+    padding: 5%;
+}
+.mainPageUsernameHeaderSection{
+    display: flex;
+    flex-direction: column;
+    max-width: 70%;
+}
+.mainPageUsername {
+    font-size: 7vw;
+    word-wrap: anywhere;
+}
+.mainPageHeader {
+    font-size: 3.5vw;
+}
+/* ---------------------- Save Button------------------ */
+.saveChanges{
+    font-size: 3.5vw;
+    background-color: #E9704B;
+    color: black;
+    border: 1px solid black;
+    border-radius: 5px;
+    justify-self: center;
+    margin: 5px;
+    padding: 10px;
+} 
+.saveChanges:hover {
+    background-color: #994931;
+    cursor: pointer; 
+}
+/* ---------------------------------------- */
+/* ---------------------------------------- */
 .addRoute {
     font-family: "Montserrat", Sans-serif;
     font-weight: bold;
@@ -388,58 +451,11 @@ export default {
     padding: 5px;
     max-width: fit-content;
 }
-
-.mainPageForm {
-    padding: 2px;
-    display: flex;
-    font-family: "Montserrat", Sans-serif;
-}
-.mainPageFormSection {
-    flex: 1;
-}
-@media only screen and (max-width: 500px) {
-    .mainPageForm{
-        display: inline;
-    }
-}
-
-.mainPageHeaderSection {
-    display: flex;
-    background: rgba(0, 0, 0, 1);
-    padding: 30px;
-}
-
-.MainPageHeader {
-    flex: 1 1;
-    padding: 2px;
-    color: white;
-    font-size: 4em;
-}
-
-.SaveChanges{
-    font-size: 2em;
-    flex: 1 1;
-    text-align: center;
-    background-color: #E13B3B;
-    color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 5px;
-    margin: 2px;
-} 
-
-.SaveChanges:hover {
-    background-color: #882323;
-    cursor: pointer; 
-}
-
 .mainPageBodySection {
     color: black;
     text-align: center;
     background: rgba(255, 255, 255, 0.85);
 }
-
 .applyFilters {
     font-size: 0.8em;
     font-weight: bold;
@@ -447,8 +463,6 @@ export default {
     margin-top: 2%;
     margin-bottom: 2%;
 }
-
-
 .filterSubsection {
     display: flex;
     padding: 2%;
@@ -462,11 +476,9 @@ export default {
     flex: 1 1;
     padding: 2%;
 }
-
 .mainPageSelectForm:hover {
      cursor: pointer; 
 }
-
 .mainPageFormMiddleSection {
     padding: 5%;
 }
@@ -475,7 +487,6 @@ export default {
     border-radius: 5px;
     border-color: #E9704B;
 }
-
 .mainPageFormMiddleSectionWarning {
     background-color: #E9704B;
     color: white;
@@ -483,7 +494,6 @@ export default {
     padding: 3%;
     margin: 2%;
 }
-
 .listOfRoutes {
     height: 300px;
     overflow:scroll;
@@ -501,7 +511,6 @@ export default {
     padding: 3%;
     margin: 2%;
 }
-
 .editRoutesSectionList {
     height: 100px;
     overflow:scroll;
@@ -514,7 +523,6 @@ export default {
     scrollbar-width: medium;
     margin: 3px;
 }
-
 .list-group-item {
     background: rgba(255, 255, 255, 0.5);
     border-radius: 0;
@@ -522,11 +530,7 @@ export default {
     border-color: black;
     border-style: solid;
 }
-
 .list-group-item:hover {
      cursor: pointer; 
 }
-
-
-
 </style>
