@@ -12,12 +12,17 @@ export default {
     data: function () {
         return {
             isAuthenticated: null,
+
             csrfToken: "",
             username: "",
-            displayLoginPage: true,
             isClimbingStaffMember: undefined,
+
+            displayLoginPage: true,
             displayMainPage: false,
-            messageToDisplay: ""
+            
+            mainPageMessageToDisplay: "",
+            loginUserMessageToDisplay: "",
+            newUserMessageToDisplay: ""
         }
     },
     created() {
@@ -54,13 +59,10 @@ export default {
                     password: loginDetails.password
                 })
             });
-            // const data = await response.json();
             if (response.ok == true){
                 this.whoAmI();
             } else {
-                // failed to log in
-                this.messageToDisplay= "You have entered an invalid username or password"
-                console.log(this.messageToDisplay);
+                this.loginUserMessageToDisplay= "You have entered an invalid username or password"
             }
         },
         async logoutUser() {
@@ -79,9 +81,7 @@ export default {
                     this.isClimbingStaffMember = undefined;
                 }
             } catch(error) {
-                console.error('Logout failed', error)
-                this.messageToDisplay= "Log out failed"
-                console.log(this.messageToDisplay);
+                this.mainPageMessageToDisplay= "Log out failed, honestly congrats, idk how you *did* that"
                 throw error
             }
         },
@@ -121,13 +121,9 @@ export default {
                 })
             });
             if (response.ok) {
-                // created user
-                this.messageToDisplay= "Created User" 
-                console.log(this.messageToDisplay);
+                this.newUserMessageToDisplay= "Created new user successfully" 
             } else {
-                 // failed to create user 
-                 this.messageToDisplay= "Failed to create user"
-                 console.log(this.messageToDisplay);
+                 this.newUserMessageToDisplay= "Failed to create new user, username already in use"
             }
         }
     }
@@ -139,18 +135,18 @@ export default {
         :csrfToken="getCSRFToken()"
         :username="username"
         :isClimbingStaffMember="isClimbingStaffMember"
-        :messageToDisplay="messageToDisplay"
-        @logoutUser="logoutUser()"
+        :mainPageMessageToDisplay="mainPageMessageToDisplay"
+        @logoutUser="logoutUser"
     ></MainPage>
     <Login
         v-else-if="displayLoginPage && !isAuthenticated"
-        :messageToDisplay="messageToDisplay"
+        :loginUserMessageToDisplay="loginUserMessageToDisplay"
         @loginUser="loginUser"
         @toggleLoginPages="displayLoginPage = false"
     ></Login>
     <NewUser
         v-else-if="!displayLoginPage && !isAuthenticated"
-        :messageToDisplay="messageToDisplay"
+        :newUserMessageToDisplay="newUserMessageToDisplay"
         @createUser="createUser"
         @toggleLoginPages="displayLoginPage = true"
     ></NewUser>

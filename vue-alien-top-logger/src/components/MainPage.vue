@@ -53,13 +53,11 @@ export default {
             const response = await fetch('http://localhost:8000/api/v1/routes/graderanges/');
             const data = await response.json()
             this.gradeRanges = data.gradeRanges;
-            console.log(this.gradeRanges);
         },
         async getHoldColours() {
             const response = await fetch('http://localhost:8000/api/v1/routes/holdcolours/');
             const data = await response.json()
             this.holdColours = data.holdColours;
-            console.log(this.holdColours);
         },
         async saveToDatabase(){
             // ------------------------STAFF ------------------------------

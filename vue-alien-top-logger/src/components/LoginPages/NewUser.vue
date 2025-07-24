@@ -11,6 +11,9 @@ export default {
             isClimbingStaffMember: false
         }
     },
+    props:{
+        newUserMessageToDisplay: String
+    },
     methods: {
         checkPasswordsAreEqual(){
             if (this.repeatPassword === this.password) {
@@ -72,6 +75,7 @@ export default {
             <input v-model="repeatPassword" type="password" class="newUserPageSectionText form-control" id="repeatpasswordinput" aria-describedby="passwordHelp" placeholder="Enter password">
         </div>
         <div v-show="!passwordsAreEqual" class="passwordWarning"> Passwords don't match !</div>
+        <div class="userCreatedMessage">{{newUserMessageToDisplay}}</div>
         <div class="createUserPageButtonContainer">
             <button @click="$emit('createUser', {username, password, isClimbingStaffMember})" type="button" class="createUserPageButton createUserButton" :disabled="!passwordsAreEqual || password === '' || !usernameIsValid"> Create User</button>
             <button @click="displayLoginPage()" type="button" class="createUserPageButton">Go to Login Page</button>
@@ -117,6 +121,9 @@ export default {
     .checkboxWarningText {
         font-size: 1rem;
     }
+}
+.userCreatedMessage{
+    color: black;
 }
 .createUserPageButtonContainer {
     display: flex;

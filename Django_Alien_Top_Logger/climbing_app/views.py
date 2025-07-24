@@ -1,9 +1,5 @@
-from django.shortcuts import render
-from rest_framework.views import APIView
 from django.http.response import JsonResponse
 import json
-# from rest_framework.response import Response
-
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import permissions
 from rest_framework.permissions import AllowAny
@@ -12,10 +8,9 @@ from .models import Route
 from .serializers import RouteSerializer
 from django.contrib.auth.models import User, Group
 from django.contrib.auth import authenticate, login, logout
-from django.middleware.csrf import get_token
-from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt, csrf_protect, requires_csrf_token
+from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from django.views.decorators.http import require_POST, require_GET
-from django.contrib.auth.decorators import permission_required, login_required
+from django.contrib.auth.decorators import permission_required
 # Permissions normally enforced in this layer
     
 #------- User Authentication-----------------------------------------
@@ -27,11 +22,7 @@ def add_user(request):
     isClimbingStaffMemberInFrontEnd = data.get('isClimbingStaffMember')
     try:
         User.objects.get(username = username)
-        return JsonResponse({
-                'userExisted': True,
-                'userCreated': False,
-                'status': status.HTTP_403_FORBIDDEN
-            })
+        return JsonResponse({'status': status.HTTP_403_FORBIDDEN})
     except:
         user = User.objects.create_user(username, None, password)
         print(user)
@@ -43,11 +34,7 @@ def add_user(request):
             group = Group.objects.get(name = 'isClimbingCustomer')
             user.groups.add(group)
             user.save()
-        return JsonResponse({
-                'userExisted': False,
-                'userCreated': True,
-                'status': status.HTTP_201_CREATED
-            })
+        return JsonResponse({'status': status.HTTP_201_CREATED})
 
 @ensure_csrf_cookie
 def session(request):
@@ -66,6 +53,7 @@ def who_am_i(request):
         })
 
 #------- Login and Logout User -----------------------------------------
+@require_POST
 def login_user(request):
     data = json.loads(request.body)
     print(data)
@@ -86,22 +74,25 @@ def logout_user(request):
     return JsonResponse({'detail': 'Successfully logged out.'}, status=status.HTTP_202_ACCEPTED)
     
 #------- Routes -----------------------------------------
-#get
+@require_GET
 def route_list(self):
     routes = Route.objects.all()
     serializer = RouteSerializer(routes, many=True)
     return JsonResponse({'routes': serializer.data})
 
+@require_GET
 def route_grade_ranges(self):
     # we just need the label in the front end, choices are (value, label) tuples
     return JsonResponse({'gradeRanges': [choice[1] for choice in Route.RouteGradeRangeClass.choices]})
 
+@require_GET
 def route_hold_colours(self):
     # we just need the label in the front end, choices are (value, label) tuples
     return JsonResponse({'holdColours': [choice[1] for choice in Route.RouteColourClass.choices]})
+
 #------- Add Delete Routes -----------------------------------------
-#post
-# @permission_required("can_add_routes")
+@require_POST
+@permission_required("can_add_routes", raise_exception=True)
 def create_routes(request):
     data = json.loads(request.body)
     print(data)
@@ -112,7 +103,8 @@ def create_routes(request):
     else:
         return JsonResponse({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
     
-# @permission_required("can_delete_routes")
+@require_POST
+@permission_required("can_delete_routes", raise_exception=True)
 def delete_routes(request):
     data = json.loads(request.body)
     print(data)
@@ -120,8 +112,8 @@ def delete_routes(request):
     return JsonResponse({'routesDeleted': data},status=status.HTTP_204_NO_CONTENT)
 
 #------- Track Routes -----------------------------------------
-# post
-# @permission_required("can_track_routes")
+@require_POST
+@permission_required("can_track_routes", raise_exception=True)
 def track_routes(request):
     data = json.loads(request.body)
     username = data.get('username')
@@ -131,8 +123,8 @@ def track_routes(request):
         route.RoutesClimbedByUsers.add(User.objects.get(username = username))
     return JsonResponse({'routesTrackedAdd': routeIdsToAdd},status=status.HTTP_201_CREATED)
 
-#get
-# @permission_required("can_track_routes")
+@require_GET
+@permission_required("can_track_routes",  raise_exception=True)
 def get_routes_tracked_by_user(request):
     data = json.loads(request.body)
     username = data.get('username')
