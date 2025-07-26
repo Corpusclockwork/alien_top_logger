@@ -142,13 +142,13 @@ export default {
         v-else-if="displayLoginPage && !isAuthenticated"
         :loginUserMessageToDisplay="loginUserMessageToDisplay"
         @loginUser="loginUser"
-        @toggleLoginPages="displayLoginPage = false"
+        @toggleLoginPages="displayLoginPage = false; loginUserMessageToDisplay = '';"
     ></Login>
     <NewUser
         v-else-if="!displayLoginPage && !isAuthenticated"
         :newUserMessageToDisplay="newUserMessageToDisplay"
         @createUser="createUser"
-        @toggleLoginPages="displayLoginPage = true"
+        @toggleLoginPages="displayLoginPage = true; newUserMessageToDisplay = '';"
     ></NewUser>
 </template>
 

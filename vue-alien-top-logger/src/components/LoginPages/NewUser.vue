@@ -123,6 +123,7 @@ export default {
     }
 }
 .userCreatedMessage{
+    font-size: 1.2rem;
     color: black;
 }
 .createUserPageButtonContainer {

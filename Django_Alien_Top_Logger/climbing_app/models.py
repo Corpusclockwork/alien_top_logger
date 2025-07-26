@@ -1,5 +1,6 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.models import User, Group, Permission
 from django.utils.translation import gettext_lazy as _
 import datetime
 
@@ -28,17 +29,9 @@ class Route(models.Model):
     RouteCreatedAt = models.DateField(default=datetime.date.today)
     RoutesClimbedByUsers = models.ManyToManyField(User)
 
-    class Meta:
-        permissions = [
-            ("can_delete_routes", "Can delete routes"),
-            ("can_add_routes", "Can add routes"),
-            ("can_track_routes", "Can track routes sent by themselves"),
-        ]
-
     # I was going to have a RouteDestroyedAt date field, but once a route is down,
     # it never goes back up and never can, there really is not a point
     # to storing that information. Might as well try to use db space well
 
     def __str__(self):
         return 'Route_' + str(self.RouteId)
-

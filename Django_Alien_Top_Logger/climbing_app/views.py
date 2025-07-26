@@ -1,8 +1,5 @@
 from django.http.response import JsonResponse
 import json
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework import permissions
-from rest_framework.permissions import AllowAny
 from rest_framework import status
 from .models import Route
 from .serializers import RouteSerializer
@@ -92,7 +89,7 @@ def route_hold_colours(self):
 
 #------- Add Delete Routes -----------------------------------------
 @require_POST
-@permission_required("can_add_routes", raise_exception=True)
+@permission_required("climbing_app.can_add_routes", raise_exception=True)
 def create_routes(request):
     data = json.loads(request.body)
     print(data)
@@ -104,7 +101,7 @@ def create_routes(request):
         return JsonResponse({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
     
 @require_POST
-@permission_required("can_delete_routes", raise_exception=True)
+@permission_required("climbing_app.can_delete_routes", raise_exception=True)
 def delete_routes(request):
     data = json.loads(request.body)
     print(data)
@@ -113,7 +110,7 @@ def delete_routes(request):
 
 #------- Track Routes -----------------------------------------
 @require_POST
-@permission_required("can_track_routes", raise_exception=True)
+@permission_required("climbing_app.can_track_routes", raise_exception=True)
 def track_routes(request):
     data = json.loads(request.body)
     username = data.get('username')
@@ -123,16 +120,13 @@ def track_routes(request):
         route.RoutesClimbedByUsers.add(User.objects.get(username = username))
     return JsonResponse({'routesTrackedAdd': routeIdsToAdd},status=status.HTTP_201_CREATED)
 
-@require_GET
-@permission_required("can_track_routes",  raise_exception=True)
+@permission_required("climbing_app.can_track_routes",  raise_exception=True)
 def get_routes_tracked_by_user(request):
     data = json.loads(request.body)
     username = data.get('username')
-    print(username)
     routesSent = Route.objects.filter(RoutesClimbedByUsers = User.objects.get(username = username))
     serializer = RouteSerializer(data=routesSent, many=True)
     if serializer.is_valid():
         serializer.save()
     return JsonResponse({'routesClimbedByUser': serializer.data})
-          
-          
+                    
