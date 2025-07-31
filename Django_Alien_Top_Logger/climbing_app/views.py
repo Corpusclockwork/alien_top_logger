@@ -5,13 +5,13 @@ from .models import Route
 from .serializers import RouteSerializer
 from django.contrib.auth.models import User, Group
 from django.contrib.auth import authenticate, login, logout
-from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_POST, require_GET
 from django.contrib.auth.decorators import permission_required
 # Permissions normally enforced in this layer
     
 #------- User Authentication-----------------------------------------
-@csrf_exempt
+@require_POST
 def add_user(request):
     data = json.loads(request.body)
     username = data.get('username')
@@ -37,6 +37,7 @@ def add_user(request):
 def session(request):
     return JsonResponse({"CSRFTokenSet": True})
 
+@require_GET
 def who_am_i(request):
     print(request)
     if not request.user.is_authenticated:
@@ -63,7 +64,8 @@ def login_user(request):
     else :
         login(request, user)
         return JsonResponse({'detail': 'Successfully logged in.'}, status=status.HTTP_202_ACCEPTED)
-    
+
+@require_POST   
 def logout_user(request):
     if not request.user.is_authenticated:
         return JsonResponse({'detail': 'You are not logged in.'}, status=status.HTTP_400_BAD_REQUEST)

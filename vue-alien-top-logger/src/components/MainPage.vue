@@ -398,12 +398,12 @@ export default {
     right: 0;
 }
 .logoutButton:hover:enabled {
-    background-color: #802f2f;
+    background-color: #7c7c7c;
 }
 /* ---------------------- Main Page------------------ */
 .mainPage {
     padding: 10% 10% 10% 10%;
-    line-height: 1;
+    line-height: 1.3;
     border-radius: 5px;
     color: white;
     font-size: 1rem;

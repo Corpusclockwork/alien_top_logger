@@ -71,7 +71,7 @@ export default {
                     method: 'POST',
                     headers: {
                         "Content-Type": "application/json",
-                        'X-CSRFToken': this.getCSRFToken(),
+                        'X-CSRFToken': this.getCSRFToken()
                     },
                     credentials: 'include',
                 })
@@ -92,10 +92,11 @@ export default {
         },
         async whoAmI() {
             const response = await fetch("http://localhost:8000/api/v1/whoami/",{
+                method: 'GET',
                 credentials: "include",
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': this.getCSRFToken(),
+                    'X-CSRFToken': this.getCSRFToken()
                 },
             });
             const data = await response.json();
@@ -108,10 +109,11 @@ export default {
             }
         },
         async createUser(newUserDetails){
-            const response = await fetch("http://127.0.0.1:8000/api/v1/newuser/", {
+            const response = await fetch("http://localhost:8000/api/v1/newuser/", {
                 method: "POST",
                 headers: {
-                    'Accept': 'application/json'
+                    'Accept': 'application/json',
+                    'X-CSRFToken': this.getCSRFToken()
                 },
                 credentials: "include",
                 body: JSON.stringify({
@@ -120,8 +122,9 @@ export default {
                     isClimbingStaffMember: newUserDetails.isClimbingStaffMember
                 })
             });
-            if (response.ok) {
-                this.newUserMessageToDisplay= "Created new user successfully" 
+            const data = await response.json();
+            if (data.status === 201) {
+                this.loginUser({username: newUserDetails.username, password: newUserDetails.password});
             } else {
                  this.newUserMessageToDisplay= "Failed to create new user, username already in use"
             }

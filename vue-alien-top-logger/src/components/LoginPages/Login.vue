@@ -9,7 +9,7 @@ export default {
         }
     },
     props:{
-        messageToDisplay: String
+        loginUserMessageToDisplay: String
     },
     methods:{
         displayNewUserPage(){
@@ -23,7 +23,7 @@ export default {
         <div class="loginPageHeader">
             Login:
         </div>
-        <div class="incorrectUsernameOrPasswordWarning">{{ messageToDisplay }}</div>
+        <div class="incorrectUsernameOrPasswordWarning">{{ loginUserMessageToDisplay }}</div>
         <div class="flex items-center gap-4 mb-2">
             <label for="username" class="loginPageSectionHeader font-semibold w-24">Username</label>
             <input v-model="username" type="username" class="loginPageSectionText form-control" id="usernameinput" aria-describedby="userHelp" placeholder="Enter username">
