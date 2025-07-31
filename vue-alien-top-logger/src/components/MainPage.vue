@@ -1,5 +1,6 @@
 <script>
 import ImageMarker from './ClimbingWallMap/ImageMarker.vue';
+import RouteList from './RouteList.vue';
 import SelectOption from './SelectOption.vue';
 export default {
     name: 'MainPage',
@@ -30,7 +31,8 @@ export default {
     },
     components: {
         ImageMarker,
-        SelectOption
+        SelectOption,
+        RouteList
     },
     created() {
         this.getRoutes();
@@ -216,10 +218,10 @@ export default {
     },
     watch : {
         RouteGradeRangeSelected() {
-            this.FilterRoutes();
+            if(this.RouteGradeRangeSelected) {this.FilterRoutes()};
         },
         RouteHoldColourSelected(){
-            this.FilterRoutes();
+            if(this.RouteHoldColourSelected) {this.FilterRoutes()};
         }
     }
 }
@@ -280,19 +282,21 @@ export default {
                 <div class="mainPageFormSection">
                     <div v-if="!RouteGradeRangeSelected && !RouteHoldColourSelected"class="applyFilters"> Apply filters to see routes on the map</div>
                     <div class="filterSubsection">
-                        <div class="filterSubsectionHeader">Grade:</div>
-                        <SelectOption
-                            :optionChoices=gradeRangeChoices
-                            selectedOptionType="gradeRangeChoicesMainPage"
-                            @selectedOptionEmitted="(option)=> RouteGradeRangeSelected = option"
-                        ></SelectOption>
-                    </div>
-                    <div class="filterSubsection">
                         <div class="filterSubsectionHeader">Hold Colour:</div>
                         <SelectOption
                             :optionChoices=holdColourChoices
                             selectedOptionType="holdColourChoicesMainPage"
+                            :variableToEdit="RouteHoldColourSelected"
                             @selectedOptionEmitted="(option)=> RouteHoldColourSelected = option"
+                        ></SelectOption>
+                    </div>
+                    <div class="filterSubsection">
+                        <div class="filterSubsectionHeader">Grade:</div>
+                        <SelectOption
+                            :optionChoices=gradeRangeChoices
+                            selectedOptionType="gradeRangeChoicesMainPage"
+                            :variableToEdit="RouteGradeRangeSelected"
+                            @selectedOptionEmitted="(option)=> RouteGradeRangeSelected = option"
                         ></SelectOption>
                     </div>
                 </div>
@@ -303,15 +307,14 @@ export default {
                         <div>
                             Routes <span class="fw-bold">added</span> by you just now:
                             <div v-show="this.routesToAddToDatabase.length > 0" class="editRoutesSectionList">
-                                <div class="list-group overflow-scroll" v-for="route in this.routesToAddToDatabase" :key="route.RouteId">
-                                    <div @click="FilterRoutes(route)" class="list-group-item" :class="route.RouteColour"> 
-                                        <div> {{ route.RouteColour }}</div>
-                                        <div> {{ route.RouteGradeRange }}</div>
-                                        <div> <span class="fw-bold">Location: </span> {{ route.RouteLocationXAxis }}, {{ route.RouteLocationYAxis }}</div>
-                                    </div>
-                                </div>
+                                <RouteList
+                                    :routeList="this.routesToAddToDatabase"
+                                    :holdColourChoices="this.holdColourChoices"
+                                    :gradeRangeChoices="this.gradeRangeChoices"
+                                    @filterRoutes="(route) => FilterRoutes(route)"
+                                >
+                                </RouteList>
                             </div>
-
                             <div v-show="this.routesToAddToDatabase.length === 0" class="mainPageFormMiddleSectionWarning fw-bold">
                                 No routes added by you
                             </div>
@@ -319,13 +322,13 @@ export default {
                         <div>
                             Routes <span class="fw-bold">deleted</span> by you just now:  
                             <div v-show="this.routesToDeleteFromDatabase.length > 0" class="editRoutesSectionList">
-                                <div class="list-group overflow-scroll" v-for="route in this.routesToDeleteFromDatabase" :key="route.RouteId">
-                                    <div @click="FilterRoutes(route)" class="list-group-item" :class="route.RouteColour"> 
-                                        <div><span class="fw-bold">{{ route.RouteColour }}</span></div>
-                                        <div> {{ route.RouteGradeRange }}</div>
-                                        <div> <span class="fw-bold">Location: </span> {{ route.RouteLocationXAxis }}, {{ route.RouteLocationYAxis }}</div>
-                                    </div>
-                                </div>
+                                <RouteList
+                                    :routeList="this.routesToDeleteFromDatabase"
+                                    :holdColourChoices="this.holdColourChoices"
+                                    :gradeRangeChoices="this.gradeRangeChoices"
+                                    @filterRoutes="(route) => FilterRoutes(route)"
+                                >
+                                </RouteList>
                             </div>
                             <div v-show="this.routesToDeleteFromDatabase.length === 0" class="mainPageFormMiddleSectionWarning fw-bold">
                                 No routes deleted by you 
@@ -339,28 +342,26 @@ export default {
                     <div class="mainPageFormMiddleSection">
                         <div v-show="this.routesClimbedByUserInSession.length > 0">
                             <div>Routes climbed By You this session:</div>
-                            <div class="editRoutesSectionList">
-                                <div class="list-group overflow-scroll" v-for="route in this.routesClimbedByUserInSession" :key="route.RouteId">
-                                    <div @click="FilterRoutes(route)" class="list-group-item" :class="route.RouteColour"> 
-                                        <div> {{ route.RouteColour }}</div>
-                                        <div> {{ route.RouteGradeRange }}</div>
-                                        <div> <span class="fw-bold">Location: </span> {{ route.RouteLocationXAxis }}, {{ route.RouteLocationYAxis }}</div>
-                                    </div>
-                                </div>
-                            </div>
+                            <RouteList
+                                :routeList="this.routesClimbedByUserInSession"
+                                :holdColourChoices="this.holdColourChoices"
+                                :gradeRangeChoices="this.gradeRangeChoices"
+                                @filterRoutes="(route) => FilterRoutes(route)"
+                            >
+                            </RouteList>
                         </div>
                         <div v-show="this.routesClimbedByUserInSession.length === 0" class="mainPageFormMiddleSectionWarning fw-bold">
                             No routes tracked by you this session
                         </div>
                         <div>Routes climbed By You in Database:</div>
                         <div v-show="this.routesClimbedByUserInDatabase.length > 0" class="editRoutesSectionList">
-                            <div class="list-group overflow-scroll" v-for="route in this.routesClimbedByUserInDatabase" :key="route.RouteId">
-                                <div @click="FilterRoutes(route)" class="list-group-item" :class="route.RouteColour"> 
-                                    <div> {{ route.RouteColour }}</div>
-                                    <div> {{ route.RouteGradeRange }}</div>
-                                    <div> <span class="fw-bold">Location: </span> {{ route.RouteLocationXAxis }}, {{ route.RouteLocationYAxis }}</div>
-                                </div>
-                            </div>
+                            <RouteList
+                                :routeList="this.routesClimbedByUserInDatabase"
+                                :holdColourChoices="this.holdColourChoices"
+                                :gradeRangeChoices="this.gradeRangeChoices"
+                                @filterRoutes="(route) => FilterRoutes(route)"
+                            >
+                            </RouteList>
                         </div>
                         <div v-show="this.routesClimbedByUserInDatabase.length === 0" class="mainPageFormMiddleSectionWarning fw-bold">
                             No routes tracked by you in the database
@@ -372,14 +373,13 @@ export default {
                 <div class="mainPageFormSection listOfRoutesSection" >
                     <div class="listOfRoutesHeader">List of Routes in the Database: </div>
                     <div class="listOfRoutes">
-                        <div class="list-group overflow-scroll" v-for="route in this.allRoutes" :key="route.RouteId">
-                            <div @click="FilterRoutes(route)" class="list-group-item" :class="route.RouteColour"> 
-                                <div> {{ route.RouteColour }}</div>
-                                <div> {{ route.RouteGradeRange }}</div>
-                                <div> <span class="fw-bold">Created On: </span> {{ route.RouteCreatedAt }}</div>
-                                <div> <span class="fw-bold">Location: </span> {{ route.RouteLocationXAxis }}, {{ route.RouteLocationYAxis }}</div>
-                            </div>
-                        </div>
+                        <RouteList
+                            :routeList="this.allRoutes"
+                            :holdColourChoices="this.holdColourChoices"
+                            :gradeRangeChoices="this.gradeRangeChoices"
+                            @filterRoutes="(route) => {FilterRoutes(route)}"
+                        >
+                        </RouteList>
                     </div>
                 </div>
                 <!-- -------------------------------------------------------------------------- -->
@@ -540,89 +540,16 @@ export default {
     scrollbar-width: medium;
     margin: 3px;
 }
-.list-group-item {
+.listGroupItem {
     border-radius: 0;
     border-width: 1px;
     border-color: black;
     border-style: solid;
+    position: relative;
+    display: block;
+    padding: 10px;
 }
-
-/* --------------------------------------------- */
-.list-group-item.IrnBru {
-    background: linear-gradient(
-        to bottom left, 
-        rgb(231, 142, 9) 0%,
-        rgb(231, 142, 9) 50%,
-        rgb(22, 39, 169) 50%, 
-        rgb(22, 39, 169) 100%);
-    background-color:rgb(113, 77, 22);
-    color: white
-}
-.list-group-item.Flamingo {
-    background-color: rgb(169, 51, 149);
-}
-.list-group-item.Wasp {
-    background: linear-gradient(
-        to bottom left, 
-        rgb(164, 170, 1) 0%,
-        rgb(164, 170, 1) 50%,
-        rgb(0, 0, 0) 50%, 
-        rgb(0, 0, 0) 100%);
-    background-color: rgb(150, 145, 46);
-    color: white
-}
-.list-group-item.Mint {
-    background-color: rgb(39, 160, 204);
-}
-.list-group-item.Green {
-    background-color: rgb(68, 153, 76);
-}
-.list-group-item.Orange {
-    background-color: rgb(193, 118, 14);
-}
-.list-group-item.Purple {
-    background-color: rgb(98, 68, 153);
-}
-.list-group-item.Red{
-    background-color: rgb(171, 58, 58);
-}
-.list-group-item.Gryffindor {
-    background: linear-gradient(
-        to bottom left, 
-        rgb(231, 142, 9) 0%,
-        rgb(231, 142, 9) 50%,
-        rgb(218, 63, 76) 50%, 
-        rgb(218, 63, 76) 100%);
-    background-color: rgb(231, 142, 9);
-}
-.list-group-item.Pink{
-    background-color: rgb(212, 99, 178);
-}
-.list-group-item.White{
-    background-color: rgb(255, 255, 255);
-    color: black;
-}
-.list-group-item.Black {
-    background-color: rgb(20, 20, 20);
-    color: white;
-}
-.list-group-item.Blue {
-    background-color: rgb(77, 115, 174);
-}
-.list-group-item.Yellow {
-    background-color: rgb(222, 210, 76);
-}
-.list-group-item.Grey {
-    background-color: rgb(83, 83, 83);
-}
-.list-group-item.Dalmatians {
-    background-color: rgb(173, 173, 173);
-}
-.list-group-item.Blobs {
-    background-color: rgb(117, 121, 117);
-}
-/* ------------------------------------------- */
-.list-group-item.list-group-item:hover {
+.listGroupItem:hover {
      cursor: pointer; 
 }
 </style>

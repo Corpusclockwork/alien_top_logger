@@ -13,9 +13,19 @@ export default {
     },
     props: {
         marker: Marker,
+
+        gradeRangeChoices: Array, 
+        holdColourChoices: Array,
+
         selectedRouteClimbedByUser: Boolean,
         selectedRouteDestroyedByUser: Boolean,
         isClimbingStaffMember: Boolean
+    },
+    methods: {
+        getLabel(value, choices){
+            const pair = choices?.find((choice) => value === choice[0]);
+            return pair ? pair[1]: "" ;
+        }
     },
     watch: {
         marker(){
@@ -48,10 +58,16 @@ export default {
             <div class="modal-body col">
                 <form>
                     <div class="form-row" >
-                        <p> <span class="fw-bold">Route Grade Range: </span> {{marker?.grade}} </p>
+                        <p>
+                            <span class="fw-bold">Route Grade Hold Colour: </span>
+                            <span class="EditRouteTextContainer" :class="marker?.colour">{{getLabel(marker?.colour, holdColourChoices)}}</span>
+                        </p>
                     </div>
                     <div class="form-row" >
-                        <p> <span class="fw-bold">Route Grade Hold Colour: </span> {{marker?.colour}} </p>
+                        <p> 
+                            <span class="fw-bold" >Route Grade Range: </span>
+                            <span class="EditRouteTextContainer" :class="marker?.grade" >{{getLabel(marker?.grade, gradeRangeChoices)}}</span> 
+                        </p>
                     </div>
                     <div class="form-row" >
                         <p> <span class="fw-bold">Route Location: </span> {{marker?.x}}, {{marker?.y}} </p>
@@ -79,8 +95,8 @@ export default {
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="saveButton btn btn-primary" data-bs-dismiss="modal" @click="$emit('on-ok', {climbedByUserLocal, destroyRouteLocal});" >Save Route</button>
+                <button type="button" class="climbingAppButton" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="climbingAppButton" data-bs-dismiss="modal" @click="$emit('on-ok', {climbedByUserLocal, destroyRouteLocal});" >Save Route</button>
             </div>
         </div>
     </div>
@@ -92,23 +108,6 @@ export default {
 }
 .modal-title {
     font-size: 1.5em;
-}
-.saveButton {
-    font-size: 1.5rem;
-    background-color: #E9704B;
-    color: white;
-    border: 1px solid white;
-    border-radius: 5px;
-    justify-self: center;
-    margin: 5px;
-    padding: 10px;
-}
-.saveButton:disabled {
-    background-color: #c2694e;
-    opacity: 0.7;
-}
-.saveButton:hover:enabled {
-    background-color: #994931;
 }
 .modalFormSelectHeader {
    margin: 5px;
@@ -124,5 +123,10 @@ export default {
 }
 .editCheckbox:hover{
     cursor: pointer; 
+}
+.EditRouteTextContainer {
+    padding: 4px;
+    padding: 4px;
+    border-radius: 4px;
 }
 </style>

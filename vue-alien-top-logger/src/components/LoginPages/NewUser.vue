@@ -77,8 +77,8 @@ export default {
         <div v-show="!passwordsAreEqual" class="passwordWarning"> Passwords don't match !</div>
         <div class="userCreatedMessage">{{newUserMessageToDisplay}}</div>
         <div class="createUserPageButtonContainer">
-            <button @click="$emit('createUser', {username, password, isClimbingStaffMember})" type="button" class="createUserPageButton createUserButton" :disabled="!passwordsAreEqual || password === '' || !usernameIsValid"> Create User</button>
-            <button @click="displayLoginPage()" type="button" class="createUserPageButton">Go to Login Page</button>
+            <button @click="$emit('createUser', {username, password, isClimbingStaffMember})" type="button" class="climbingAppButton" :disabled="!passwordsAreEqual || password === '' || !usernameIsValid"> Create User</button>
+            <button @click="displayLoginPage()" type="button" class="climbingAppButton">Go to Login Page</button>
         </div>
     </div>
 </template>
@@ -132,22 +132,5 @@ export default {
     justify-self: center;
     width: 50%;
     padding-top: 10px;
-}
-.createUserPageButton {
-    font-size: 1.5rem;
-    background-color: #E9704B;
-    color: white;
-    border: 1px solid white;
-    border-radius: 5px;
-    justify-self: center;
-    margin: 5px;
-    padding: 10px;
-}
-.createUserPageButton:disabled {
-    background-color: #c2694e;
-    opacity: 0.7;
-}
-.createUserPageButton:hover:enabled {
-    background-color: #994931;
 }
 </style>

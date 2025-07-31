@@ -8,15 +8,6 @@ export default {
         hold_colour: String
     },
     methods: {
-        getColour(){
-            if(this.hold_colour =="RED") {
-                return "red";
-            } else if(this.hold_colour =="GREEN") {
-                return "green";
-            } else if (this.hold_colour =="BLUE") {
-                return "blue";
-            }
-        },
         getXPercentage() {
             return this.x_percentage + '%'
         },
@@ -27,14 +18,16 @@ export default {
     computed: {
         cssProps() {
             return {
-                'background-color': this.getColour(),
-                'width': '25px',
-                'height': '25px',
+                'width': '3vw',
+                'height': '3vw',
                 'border-radius' : '50%',
                 'top': this.getYPercentage(),
                 'left': this.getXPercentage(),
                 'position': 'absolute',
-                'cursor': 'pointer'
+                'cursor': 'pointer',
+                'border-color' :'black',
+                'border-style' :'solid',
+                'border-width' : '2px'
             }
         }
     }
@@ -42,8 +35,11 @@ export default {
 </script>
 <template>
     <div 
+        :class="hold_colour"
         :style="cssProps" 
         @click="$emit('markerSelected')"
     >
     </div>
 </template>
+<style>
+</style>

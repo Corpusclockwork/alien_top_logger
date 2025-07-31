@@ -54,6 +54,15 @@ export default {
                         </div>
                     </div>
                     <div class="form-row">
+                         <div class="col">
+                            <div class="modalFormSelectHeader"> Hold Colour:</div>
+                               <SelectOption
+                                    :optionChoices=holdColourChoices
+                                    selectedOptionType="holdColourChoicesAddRouteModal"
+                                    @selectedOptionEmitted="(option)=> newRouteHoldColour = option"
+                                ></SelectOption>
+                            <div v-if="this.newRouteHoldColour === null" class="invalid-feedback d-block">Please select a Hold Colour</div>
+                        </div>
                         <div class="col">
                             <div class="modalFormSelectHeader"> Route Grade:</div>
                              <SelectOption
@@ -63,21 +72,12 @@ export default {
                             ></SelectOption>
                             <div v-if="this.newRouteGradeRange === null" class="invalid-feedback d-block">Please select a Grade</div>
                         </div>
-                        <div class="col">
-                            <div class="modalFormSelectHeader"> Hold Colour:</div>
-                               <SelectOption
-                                    :optionChoices=holdColourChoices
-                                    selectedOptionType="holdColourChoicesAddRouteModal"
-                                    @selectedOptionEmitted="(option)=> newRouteHoldColour = option"
-                                ></SelectOption>
-                            <div v-if="this.newRouteHoldColour === null" class="invalid-feedback d-block">Please select a Hold Colour</div>
-                        </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="saveButton" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="saveButton" data-bs-dismiss="modal" @click="$emit('on-ok', newRouteObject);" :disabled="(this.newRouteHoldColour === null) || (this.newRouteGradeRange === null)" >Save Route</button>
+                <button type="button" class="climbingAppButton" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="climbingAppButton" data-bs-dismiss="modal" @click="$emit('on-ok', newRouteObject);" :disabled="(this.newRouteHoldColour === null) || (this.newRouteGradeRange === null)" >Save Route</button>
             </div>
         </div>
     </div>
@@ -89,23 +89,6 @@ export default {
 }
 .modal-title {
     font-size: 1.5em;
-}
-.saveButton {
-    font-size: 1.5rem;
-    background-color: #E9704B;
-    color: white;
-    border: 1px solid white;
-    border-radius: 5px;
-    justify-self: center;
-    margin: 5px;
-    padding: 10px;
-}
-.saveButton:disabled {
-    background-color: #c2694e;
-    opacity: 0.7;
-}
-.saveButton:hover:enabled {
-    background-color: #994931;
 }
 .modalFormSelectHeader {
    margin: 5px;

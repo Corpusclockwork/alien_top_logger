@@ -142,6 +142,9 @@ export default {
         :isClimbingStaffMember="this.isClimbingStaffMember"
         :marker="this.selectedRoute? this.selectedRoute : undefined" 
 
+        :gradeRangeChoices="this.gradeRangeChoices"
+        :holdColourChoices="this.holdColourChoices"
+
         :selectedRouteDestroyedByUser="this.routesToDeleteFromDatabase?.includes(this.selectedRoute?.id)"
         :selectedRouteClimbedByUser="selectedRouteClimbedByUser()"
 

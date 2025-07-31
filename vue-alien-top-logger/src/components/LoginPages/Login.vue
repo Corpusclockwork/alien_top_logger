@@ -33,8 +33,8 @@ export default {
             <input v-model="password" type="password" class="loginPageSectionText form-control" id="passwordinput" aria-describedby="passwordHelp" placeholder="Enter password">
         </div>
         <div class="loginPageButtonContainer">
-            <button @click="displayNewUserPage()" type="button" class="loginPageButton">Create a New User</button>
-            <button @click="$emit('loginUser', {username, password})" type="button" class="loginPageButton" :disabled="username === '' || password === ''">Login</button>
+            <button @click="displayNewUserPage()" type="button" class="climbingAppButton">Create a New User</button>
+            <button @click="$emit('loginUser', {username, password})" type="button" class="climbingAppButton" :disabled="username === '' || password === ''">Login</button>
         </div>
     </div>
 </template>
@@ -67,25 +67,5 @@ export default {
     justify-self: center;
     width: 50%;
     padding-top: 10px;
-}
-
-.loginPageButton {
-    font-size: 1.5rem;
-    background-color: #E9704B;
-    color: white;
-    border: 1px solid white;
-    border-radius: 5px;
-    justify-self: center;
-    margin: 5px;
-    padding: 10px;
-}
-
-.loginPageButton:disabled {
-    background-color: #c2694e;
-    opacity: 0.7;
-}
-
-.loginPageButton:hover:enabled {
-    background-color: #994931;
 }
 </style>
