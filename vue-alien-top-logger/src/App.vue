@@ -2,12 +2,14 @@
 import Login from './components/LoginPages/Login.vue';
 import MainPage from './components/MainPage.vue';
 import NewUser from './components/LoginPages/NewUser.vue';
+import LoadingPage from './components/LoadingPage.vue';
 export default {
     name: "App",
     components: {
         Login,
         MainPage,
-        NewUser
+        NewUser,
+        LoadingPage
     },
     data: function () {
         return {
@@ -133,8 +135,10 @@ export default {
 }
 </script>
 <template>
+    <LoadingPage v-if="isAuthenticated === null">
+    </LoadingPage>
     <MainPage 
-        v-if="isAuthenticated"
+        v-if="isAuthenticated === true"
         :csrfToken="getCSRFToken()"
         :username="username"
         :isClimbingStaffMember="isClimbingStaffMember"
@@ -142,13 +146,13 @@ export default {
         @logoutUser="logoutUser"
     ></MainPage>
     <Login
-        v-else-if="displayLoginPage && !isAuthenticated"
+        v-else-if="displayLoginPage && isAuthenticated ===false"
         :loginUserMessageToDisplay="loginUserMessageToDisplay"
         @loginUser="loginUser"
         @toggleLoginPages="displayLoginPage = false; loginUserMessageToDisplay = '';"
     ></Login>
     <NewUser
-        v-else-if="!displayLoginPage && !isAuthenticated"
+        v-else-if="!displayLoginPage && isAuthenticated ===false"
         :newUserMessageToDisplay="newUserMessageToDisplay"
         @createUser="createUser"
         @toggleLoginPages="displayLoginPage = true; newUserMessageToDisplay = '';"
