@@ -20,12 +20,16 @@ export default {
     props: {
         filteredRoutes: Array,
 
+        gradeRangeChoices: Array, 
+        holdColourChoices: Array,
+
         routesToAddToDatabase: Array,
         routesToDeleteFromDatabase: Array,
 
         routesClimbedByUserInSession: Array,
         routesClimbedByUserInDatabase: Array,
-        isClimbingStaffMember: Boolean
+        isClimbingStaffMember: Boolean,
+
     },
     methods: {
         // --------------------------STAFF AND CUSTOMERS----------------------------
@@ -114,7 +118,7 @@ export default {
             <img
                 class="ImageMarkerImageClass"
                 id="Alienbloc_shape_id"
-                src="/Alienbloc_shape.png"
+                src="/alien_bloc_shape_final.jpg"
                 alt= "Alien bloc"
                 @click="setNewRouteLocation"
                 :data-bs-toggle="this.isClimbingStaffMember ? 'modal' : ''"
@@ -150,6 +154,9 @@ export default {
         <AddRouteModal
             :markerX= "this.newMarkerX"
             :markerY="this.newMarkerY"
+
+            :gradeRangeChoices="this.gradeRangeChoices"
+            :holdColourChoices="this.holdColourChoices"
 
             @on-ok="createNewRoute"
             @on-cancel="cancelNewRouteAdded"  

@@ -90,41 +90,39 @@ export default {
 .modal-body {
     font-family: "Montserrat", Sans-serif;
 }
-
 .modal-title {
     font-size: 1.5em;
 }
-
 .saveButton {
+    font-size: 1.5rem;
     background-color: #E9704B;
-    border-color: #E9704B;
+    color: white;
+    border: 1px solid white;
+    border-radius: 5px;
+    justify-self: center;
+    margin: 5px;
+    padding: 10px;
 }
-
 .saveButton:disabled {
-    background-color: grey;
+    background-color: #c2694e;
+    opacity: 0.7;
 }
-
-.saveButton:hover {
+.saveButton:hover:enabled {
     background-color: #994931;
 }
-
 .modalFormSelectHeader {
    margin: 5px;
 }
-
 .negativeIdWarning {
     color: #E13B3B;
     font-size: 0.7em;
     margin: 5px;
 }
-
 .editCheckbox {
     accent-color: #E13B3B;
     margin: 5px;
 }
-
 .editCheckbox:hover{
     cursor: pointer; 
 }
- 
 </style>

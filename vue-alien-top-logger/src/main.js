@@ -11,6 +11,7 @@ import 'bootstrap';
 // #E9704B
 // I haven't implemented locking for staff users so they can't both edit the same route at once, maybe something to think about later
 // If I wind up with staff being able to change the location of the route especially 
+// I remembered half way through the vue props should have kebab case, but it was too late by then
 
 const app = createApp(App);
 app.mount('#app');

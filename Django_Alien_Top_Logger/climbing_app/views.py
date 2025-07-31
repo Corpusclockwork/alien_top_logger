@@ -79,13 +79,11 @@ def route_list(self):
 
 @require_GET
 def route_grade_ranges(self):
-    # we just need the label in the front end, choices are (value, label) tuples
-    return JsonResponse({'gradeRanges': [choice[1] for choice in Route.RouteGradeRangeClass.choices]})
+    return JsonResponse({'gradeRangeChoices': Route.RouteGradeRangeClass.choices})
 
 @require_GET
 def route_hold_colours(self):
-    # we just need the label in the front end, choices are (value, label) tuples
-    return JsonResponse({'holdColours': [choice[1] for choice in Route.RouteColourClass.choices]})
+    return JsonResponse({'holdColourChoices': Route.RouteColourClass.choices})
 
 #------- Add Delete Routes -----------------------------------------
 @require_POST
