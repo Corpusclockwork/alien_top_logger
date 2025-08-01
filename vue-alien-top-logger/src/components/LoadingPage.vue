@@ -10,11 +10,11 @@ export default {
 </template>
 <style scoped>
 .loadingText {
- width: 100%;
-  font-size: 6rem;
-  color: white;
-  text-align: center;
-  position: absolute;
-  top: 30%;
+    width: 100%;
+    font-size: 6rem;
+    color: white;
+    text-align: center;
+    position: absolute;
+    top: 30%;
 }
 </style>
