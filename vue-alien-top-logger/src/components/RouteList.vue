@@ -8,7 +8,8 @@ export default {
 
         deletedRoutes: Array,
 
-        climbedByUserRoutes: Array
+        climbedByUserInDatabase: Array,
+        climbedByUserInSession: Array
     },
     methods:{
         getLabel(value, choices){
@@ -24,8 +25,14 @@ export default {
             } 
             return "";
         },
-        routeClimbedByUser(route){
-             if (this.climbedByUserRoutes?.find(climbedRoute => climbedRoute?.RouteId === route.RouteId)) {
+        routeClimbedByUserInDatabase(route){
+            if (this.climbedByUserInDatabase?.find(climbedRoute => climbedRoute?.RouteId === route.RouteId)) {
+                return true
+            } 
+            return "";
+        },
+        routeClimbedByUserInSession(route){
+            if (this.climbedByUserInSession?.find(climbedRoute => climbedRoute?.RouteId === route.RouteId)) {
                 return true
             } 
             return "";
@@ -36,7 +43,8 @@ export default {
 <template>
 <div class="list-group overflow-scroll" v-for="route in routeList" :key="route.RouteId">
     <div @click="clickedRoute(route)" class="listGroupItem" :class="route.RouteColour, deletedRoutesClass(route)"> 
-        <div v-if="routeClimbedByUser(route)" class="routeClimbed"> &#x2713 </div>
+        <div v-if="routeClimbedByUserInDatabase(route)" class="routeClimbed"> &#10004 </div>
+        <div v-if="routeClimbedByUserInSession(route)" class="routeClimbed">&#9745</div>
         <div><span>{{ getLabel(route.RouteColour, holdColourChoices) }}</span></div>
         <div>{{ getLabel(route.RouteGradeRange, gradeRangeChoices) }}</div>
         <div v-if="route.RouteCreatedAt"><span class="fw-bold">Created: </span> {{ new Date(route.RouteCreatedAt).toLocaleDateString("en-UK") }}</div>

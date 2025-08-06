@@ -49,8 +49,8 @@ export default {
          async getRoutes() {
             const response = await fetch('http://localhost:8000/api/v1/routes/');
             const data = await response.json()
-             this.allRoutes = data.routes;
-             this.allRoutes.sort(function(a,b){
+            this.allRoutes = data.routes;
+            this.allRoutes.sort(function(a,b){
                 return new Date(b.RouteCreatedAt) - new Date(a.RouteCreatedAt);
             });
             console.log(this.allRoutes);
@@ -171,7 +171,8 @@ export default {
                     const routeToDestroy = this.allRoutes.find((route) => route.RouteId === destroyRouteObject.id);
                     this.routesToDeleteFromDatabase.push(routeToDestroy)
                 } else {
-                    const indexOfRouteToRemove = this.routesToDeleteFromDatabase.indexOf((route) => route.RouteId === destroyRouteObject.id);
+                    const routeToRemove = this.routesToDeleteFromDatabase.find((route) => route.RouteId === destroyRouteObject.id);
+                    const indexOfRouteToRemove = this.routesToDeleteFromDatabase.indexOf(routeToRemove);
                     this.routesToDeleteFromDatabase.splice(indexOfRouteToRemove, 1); 
                 }  
             }
@@ -191,6 +192,10 @@ export default {
             });
             const data = await response.json();
             this.routesClimbedByUserInDatabase = data.routesClimbedByUser;
+            this.routesClimbedByUserInDatabase.sort(function(a,b){
+                return new Date(b.RouteCreatedAt) - new Date(a.RouteCreatedAt);
+            });
+
         },
         async trackRoutesInDatabase() {
             const routeIdsAdd = this.routesClimbedByUserInSession.map(route => route.RouteId);
@@ -209,8 +214,9 @@ export default {
             if(customerEditRouteObject.climbedByUser){
                 this.routesClimbedByUserInSession.push(routeToTrack);
             } else {
-                const indexOfRouteToRemove = this.routesClimbedByUserInSession.indexOf((route) => route.id === customerEditRouteObject.id);
-                this.routesClimbedByUserInSession.splice(indexOfRouteToRemove, 1);
+                const routeClimbed = this.routesClimbedByUserInSession.find((route) => route.RouteId === customerEditRouteObject.id);
+                const indexOfRoute = this.routesClimbedByUserInSession.indexOf(routeClimbed);
+                this.routesClimbedByUserInSession.splice(indexOfRoute, 1); 
             }
         },
         // ------------------------------------------------------------------------------------------------------
@@ -263,25 +269,25 @@ export default {
         <div class="mainPageBodySection">
             <!-- ---------------STAFF------------ -->
             <div v-if="isClimbingStaffMember" class="addRoute"> 
-                <div>Click on map to add a route</div>
+                <div>Click on the map to add a route</div>
             </div>
             <!-- --------------------------------- -->
             <div>
                 <ImageMarker
-                    :isClimbingStaffMember = this.isClimbingStaffMember
+                    :isClimbingStaffMember = isClimbingStaffMember
 
-                    :filteredRoutes = this.filteredRoutes
+                    :filteredRoutes = filteredRoutes
 
-                    :gradeRangeChoices = this.gradeRangeChoices
-                    :holdColourChoices = this.holdColourChoices
+                    :gradeRangeChoices = gradeRangeChoices
+                    :holdColourChoices = holdColourChoices
 
-                    :routesToAddToDatabase = this.routesToAddToDatabase
-                    :routesToDeleteFromDatabase = this.routesToDeleteFromDatabase
+                    :routesToAddToDatabase = routesToAddToDatabase
+                    :routesToDeleteFromDatabase = routesToDeleteFromDatabase
                     @staffAddNewRoute="staffAddNewRoute"
                     @staffEditRoute="staffEditRoute"
 
-                    :routesClimbedByUserInDatabase = this.routesClimbedByUserInDatabase
-                    :routesClimbedByUserInSession = this.routesClimbedByUserInSession
+                    :routesClimbedByUserInDatabase = routesClimbedByUserInDatabase
+                    :routesClimbedByUserInSession = routesClimbedByUserInSession
                     @customerEditRoute="customerEditRoute"
                 />
             </div>
@@ -313,35 +319,35 @@ export default {
                     <div class="mainPageFormMiddleSection">
                         <div>
                             Routes <span class="fw-bold">added</span> by you just now:
-                            <div v-show="this.routesToAddToDatabase.length > 0" >
+                            <div v-show="routesToAddToDatabase.length > 0" >
                                 <div class="listOfRoutesSmall">
                                     <RouteList
-                                        :routeList="this.routesToAddToDatabase"
-                                        :holdColourChoices="this.holdColourChoices"
-                                        :gradeRangeChoices="this.gradeRangeChoices"
+                                        :routeList="routesToAddToDatabase"
+                                        :holdColourChoices="holdColourChoices"
+                                        :gradeRangeChoices="gradeRangeChoices"
                                         @filterRoutes="(route) => FilterRoutes(route)"
                                     >
                                     </RouteList>
                                 </div>
                             </div>
-                            <div v-show="this.routesToAddToDatabase.length === 0" class="mainPageFormMiddleSectionWarning fw-bold">
+                            <div v-show="routesToAddToDatabase.length === 0" class="mainPageFormMiddleSectionWarning fw-bold">
                                 No routes added by you
                             </div>
                         </div>
                         <div>
                             Routes <span class="fw-bold">deleted</span> by you just now:  
-                            <div v-show="this.routesToDeleteFromDatabase.length > 0" >
+                            <div v-show="routesToDeleteFromDatabase.length > 0" >
                                 <div class="listOfRoutesSmall">
                                     <RouteList
-                                        :routeList="this.routesToDeleteFromDatabase"
-                                        :holdColourChoices="this.holdColourChoices"
-                                        :gradeRangeChoices="this.gradeRangeChoices"
+                                        :routeList="routesToDeleteFromDatabase"
+                                        :holdColourChoices="holdColourChoices"
+                                        :gradeRangeChoices="gradeRangeChoices"
                                         @filterRoutes="(route) => FilterRoutes(route)"
                                     >
                                     </RouteList>
                                 </div>
                             </div>
-                            <div v-show="this.routesToDeleteFromDatabase.length === 0" class="mainPageFormMiddleSectionWarning fw-bold">
+                            <div v-show="routesToDeleteFromDatabase.length === 0" class="mainPageFormMiddleSectionWarning fw-bold">
                                 No routes deleted by you 
                             </div>
                         </div>
@@ -352,33 +358,33 @@ export default {
                   <div v-if="!isClimbingStaffMember" class="mainPageFormSection">
                     <div class="mainPageFormMiddleSection">
                         <div>Routes climbed by you this session:</div>
-                        <div v-show="this.routesClimbedByUserInSession.length > 0" >
+                        <div v-show="routesClimbedByUserInSession.length > 0" >
                             <div class="listOfRoutesSmall" >
                                 <RouteList
-                                    :routeList="this.routesClimbedByUserInSession"
-                                    :holdColourChoices="this.holdColourChoices"
-                                    :gradeRangeChoices="this.gradeRangeChoices"
+                                    :routeList="routesClimbedByUserInSession"
+                                    :holdColourChoices="holdColourChoices"
+                                    :gradeRangeChoices="gradeRangeChoices"
                                     @filterRoutes="(route) => FilterRoutes(route)"
                                 >
                                 </RouteList>
                             </div>
                         </div>
-                        <div v-show="this.routesClimbedByUserInSession.length === 0" class="mainPageFormMiddleSectionWarning fw-bold">
+                        <div v-show="routesClimbedByUserInSession.length === 0" class="mainPageFormMiddleSectionWarning fw-bold">
                             No routes tracked by you this session
                         </div>
                         <div>Routes climbed by you in the database:</div>
-                        <div v-show="this.routesClimbedByUserInDatabase.length > 0">
+                        <div v-show="routesClimbedByUserInDatabase.length > 0">
                             <div class="listOfRoutesSmall" >
                                 <RouteList
-                                    :routeList="this.routesClimbedByUserInDatabase"
-                                    :holdColourChoices="this.holdColourChoices"
-                                    :gradeRangeChoices="this.gradeRangeChoices"
+                                    :routeList="routesClimbedByUserInDatabase"
+                                    :holdColourChoices="holdColourChoices"
+                                    :gradeRangeChoices="gradeRangeChoices"
                                     @filterRoutes="(route) => FilterRoutes(route)"
                                 >
                                 </RouteList>
                             </div>
                         </div>
-                        <div v-show="this.routesClimbedByUserInDatabase.length === 0" class="mainPageFormMiddleSectionWarning fw-bold">
+                        <div v-show="routesClimbedByUserInDatabase.length === 0" class="mainPageFormMiddleSectionWarning fw-bold">
                             No routes tracked by you in the database
                         </div>
                     </div>
@@ -389,11 +395,12 @@ export default {
                     <div class="listOfRoutesHeader">List of Routes in the Database: </div>
                     <div class="listOfRoutes">
                         <RouteList
-                            :routeList="this.allRoutes"
-                            :holdColourChoices="this.holdColourChoices"
-                            :gradeRangeChoices="this.gradeRangeChoices"
-                            :deletedRoutes="this.routesToDeleteFromDatabase"
-                            :climbedByUserRoutes="this.routesClimbedByUserInDatabase"
+                            :routeList="allRoutes"
+                            :holdColourChoices="holdColourChoices"
+                            :gradeRangeChoices="gradeRangeChoices"
+                            :deletedRoutes="routesToDeleteFromDatabase"
+                            :climbedByUserInDatabase="routesClimbedByUserInDatabase"
+                            :climbedByUserInSession="routesClimbedByUserInSession"
                             @filterRoutes="(route) => {FilterRoutes(route)}"
                         >
                         </RouteList>

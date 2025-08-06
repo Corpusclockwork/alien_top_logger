@@ -4,7 +4,7 @@ export default {
     name: "EditRouteModal",
     data: function(){
         return {
-            destroyRouteLocal: false,
+            destroyRouteLocal: undefined,
             climbedByUserLocal: undefined,
         }
     },
@@ -21,7 +21,6 @@ export default {
         selectedRouteClimbedByUserInDatabase: Boolean,
 
         selectedRouteDestroyedByUser: Boolean,
-
         isClimbingStaffMember: Boolean
     },
     methods: {
@@ -102,8 +101,8 @@ export default {
             </div>
             <div v-if="!selectedRouteClimbedByUserInDatabase" class="modal-footer">
                 <button type="button" class="climbingAppButton" data-bs-dismiss="modal">Close</button>
-                <button v-if="isClimbingStaffMember" type="button" class="climbingAppButton" data-bs-dismiss="modal" @click="$emit('on-ok', {destroyRouteLocal});" >Delete Route</button>
-                <button v-if="!isClimbingStaffMember" type="button" class="climbingAppButton" data-bs-dismiss="modal" @click="$emit('on-ok', {climbedByUserLocal});" >Save</button>
+                <button v-if="isClimbingStaffMember" type="button" class="climbingAppButton" data-bs-dismiss="modal" :disabled="destroyRouteLocal === selectedRouteDestroyedByUser" @click="$emit('on-ok', {destroyRouteLocal});" >Save Changes</button>
+                <button v-if="!isClimbingStaffMember" type="button" class="climbingAppButton" data-bs-dismiss="modal" :disabled="climbedByUserLocal === selectedRouteClimbedByUserInSession" @click="$emit('on-ok', {climbedByUserLocal});" >Save</button>
             </div>
         </div>
     </div>

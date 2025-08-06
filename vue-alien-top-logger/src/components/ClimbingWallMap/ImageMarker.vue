@@ -62,6 +62,7 @@ export default {
                 this.$emit('customerEditRoute', {climbedByUser: routeStats.climbedByUserLocal, id: this.selectedRoute.id});
             } 
             // ---------------------------------------------------------------------------------------------------
+            this.selectedRoute = null;
         },
         cancelEditRoute() {
             this.selectedRoute = null;
@@ -124,10 +125,10 @@ export default {
                 @load="imageLoading = false" 
                 alt= "Alien bloc"
                 @click="setNewRouteLocation"
-                :data-bs-toggle="this.isClimbingStaffMember ? 'modal' : ''"
-                :data-bs-target="this.isClimbingStaffMember ? '#add-route' : ''"
+                :data-bs-toggle="isClimbingStaffMember ? 'modal' : ''"
+                :data-bs-target="isClimbingStaffMember ? '#add-route' : ''"
             />
-            <div v-for="marker in this.markers">
+            <div v-for="marker in markers">
                 <Marker
                     @click="markerSelected(marker)"
                     data-bs-toggle="modal"
@@ -144,29 +145,31 @@ export default {
     </div>
     <!-- -------------------------STAFF AND CUSTOMERS--------------------------------- -->
      <EditRouteModal
-        :isClimbingStaffMember="this.isClimbingStaffMember"
-        :marker="this.selectedRoute? this.selectedRoute : undefined" 
+        :isClimbingStaffMember="isClimbingStaffMember"
+        :marker="selectedRoute? selectedRoute : undefined" 
 
-        :gradeRangeChoices="this.gradeRangeChoices"
-        :holdColourChoices="this.holdColourChoices"
+        :gradeRangeChoices="gradeRangeChoices"
+        :holdColourChoices="holdColourChoices"
 
-        :selectedRouteDestroyedByUser="this.routesToDeleteFromDatabase?.includes(this.selectedRoute?.id)"
+        :selectedRouteDestroyedByUser="routesToDeleteFromDatabase.map(deletedRoute => deletedRoute.RouteId).includes(selectedRoute?.id)"
 
-        :selectedRouteClimbedByUserInSession="routeClimbedByUserInSession(this.selectedRoute?.id)"
-        :selectedRouteClimbedByUserInDatabase="routeClimbedByUserInDatabase(this.selectedRoute?.id)"
+        :routesToDeleteFromDatabase="routesToDeleteFromDatabase"
+
+        :selectedRouteClimbedByUserInSession="routeClimbedByUserInSession(selectedRoute?.id)"
+        :selectedRouteClimbedByUserInDatabase="routeClimbedByUserInDatabase(selectedRoute?.id)"
 
         @on-ok="editRoute"
         @on-cancel="cancelEditRoute"  
     />
     <!-- ---------------------------------------------------------- -->
     <!-- -------------------------STAFF--------------------------------- -->
-    <div v-if="this.isClimbingStaffMember">
+    <div v-if="isClimbingStaffMember">
         <AddRouteModal
-            :markerX= "this.newMarkerX"
-            :markerY="this.newMarkerY"
+            :markerX= "newMarkerX"
+            :markerY="newMarkerY"
 
-            :gradeRangeChoices="this.gradeRangeChoices"
-            :holdColourChoices="this.holdColourChoices"
+            :gradeRangeChoices="gradeRangeChoices"
+            :holdColourChoices="holdColourChoices"
 
             @on-ok="createNewRoute"
             @on-cancel="cancelNewRouteAdded"  

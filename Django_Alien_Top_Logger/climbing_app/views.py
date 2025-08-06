@@ -22,7 +22,6 @@ def add_user(request):
         return JsonResponse({'status': status.HTTP_403_FORBIDDEN})
     except:
         user = User.objects.create_user(username, None, password)
-        print(user)
         if isClimbingStaffMemberInFrontEnd == True :
             group = Group.objects.get(name = 'isClimbingStaffMember')
             user.groups.add(group)
@@ -39,7 +38,6 @@ def session(request):
 
 @require_GET
 def who_am_i(request):
-    print(request)
     if not request.user.is_authenticated:
         return JsonResponse({
             'isAuthenticated': False, 
@@ -54,11 +52,9 @@ def who_am_i(request):
 @require_POST
 def login_user(request):
     data = json.loads(request.body)
-    print(data)
     username = data.get('username')
     password = data.get('password')
     user = authenticate(username = username, password = password)
-    print(user)
     if user is None:
         return JsonResponse({'detail': 'Invalid credentials.'}, status=status.HTTP_400_BAD_REQUEST)
     else :
@@ -92,7 +88,6 @@ def route_hold_colours(self):
 @permission_required("climbing_app.can_add_routes", raise_exception=True)
 def create_routes(request):
     data = json.loads(request.body)
-    print(data)
     serializer = RouteSerializer(data=data, many=True)
     if serializer.is_valid():
         serializer.save()
@@ -104,7 +99,6 @@ def create_routes(request):
 @permission_required("climbing_app.can_delete_routes", raise_exception=True)
 def delete_routes(request):
     data = json.loads(request.body)
-    print(data)
     Route.objects.filter(RouteId__in=data).delete()
     return JsonResponse({'routesDeleted': data},status=status.HTTP_204_NO_CONTENT)
 

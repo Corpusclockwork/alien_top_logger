@@ -61,7 +61,7 @@ export default {
                                     selectedOptionType="holdColourChoicesAddRouteModal"
                                     @selectedOptionEmitted="(option)=> newRouteHoldColour = option"
                                 ></SelectOption>
-                            <div v-if="this.newRouteHoldColour === null" class="invalid-feedback d-block">Please select a Hold Colour</div>
+                            <div v-if="newRouteHoldColour === null" class="invalid-feedback d-block">Please select a Hold Colour</div>
                         </div>
                         <div class="col">
                             <div class="modalFormSelectHeader"> Route Grade:</div>
@@ -70,14 +70,14 @@ export default {
                                 selectedOptionType="gradeRangeChoicesAddRouteModal"
                                 @selectedOptionEmitted="(option)=> newRouteGradeRange = option"
                             ></SelectOption>
-                            <div v-if="this.newRouteGradeRange === null" class="invalid-feedback d-block">Please select a Grade</div>
+                            <div v-if="newRouteGradeRange === null" class="invalid-feedback d-block">Please select a Grade</div>
                         </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="climbingAppButton" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="climbingAppButton" data-bs-dismiss="modal" @click="$emit('on-ok', newRouteObject);" :disabled="(this.newRouteHoldColour === null) || (this.newRouteGradeRange === null)" >Add Route</button>
+                <button type="button" class="climbingAppButton" data-bs-dismiss="modal" @click="$emit('on-ok', newRouteObject);" :disabled="(newRouteHoldColour === null) || (newRouteGradeRange === null)" >Add Route</button>
             </div>
         </div>
     </div>
