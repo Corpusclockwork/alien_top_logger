@@ -47,7 +47,7 @@ class Route(models.Model):
         choices=RouteGradeRangeClass.choices,
         default=RouteGradeRangeClass.VB
     )
-    RouteCreatedAt = models.DateField(default=datetime.date.today)
+    RouteCreatedAt = models.DateTimeField(default=datetime.datetime.now)
     RoutesClimbedByUsers = models.ManyToManyField(User)
 
     # I was going to have a RouteDestroyedAt date field, but once a route is down,

@@ -89,6 +89,7 @@ export default {
             // -----------------------------------------------------------
             this.RouteGradeRangeSelected = "";
             this.RouteHoldColourSelected = "";
+            this.FilterRoutes();
         },
         FilterRoutes(routeSelected){
             this.filteredRoutes = [];
@@ -122,6 +123,9 @@ export default {
                 }
             });
         },
+        disableSaveButton(){
+            return this.routesToDeleteFromDatabase.length === 0 && this.routesToAddToDatabase.length === 0 && this.routesClimbedByUserInSession.length === 0;
+        },
         // --------------------------------------------------------------------------------
         // -------------------------STAFF --------------------------------------------------
         async saveNewRoutesInDatabase() {
@@ -141,7 +145,7 @@ export default {
             const ids = this.routesToDeleteFromDatabase.map(route => route.RouteId);
             const response = await fetch("http://localhost:8000/api/v1/routes/delete/", {
                 credentials: "include",
-                method: "DELETE",
+                method: "POST",
                 headers: {
                     'Content-Type': 'application/json',
                     "X-CSRFToken": this.csrfToken
@@ -153,7 +157,7 @@ export default {
             // generate a new id for the route (negative)
             newRoute.RouteId = -(this.routesToAddToDatabase.length + 1);
             this.routesToAddToDatabase.push(newRoute);
-            this.FilterRoutes();
+            this.FilterRoutes(newRoute);
         }, 
         staffEditRoute(destroyRouteObject){
             if (destroyRouteObject.id < 0) {
@@ -218,10 +222,10 @@ export default {
     },
     watch : {
         RouteGradeRangeSelected() {
-            if(this.RouteGradeRangeSelected) {this.FilterRoutes()};
+            if(this.RouteGradeRangeSelected || this.RouteHoldColourSelected) {this.FilterRoutes()};
         },
         RouteHoldColourSelected(){
-            if(this.RouteHoldColourSelected) {this.FilterRoutes()};
+            if(this.RouteGradeRangeSelected || this.RouteHoldColourSelected) {this.FilterRoutes()};
         }
     }
 }
@@ -246,7 +250,11 @@ export default {
                 </div>
                 <!-- ------------------------- -->
             </div>
-            <button @click="saveToDatabase();"class="saveChanges"> 
+            <button 
+                @click="saveToDatabase();
+                "class="saveChanges" 
+                :disabled="disableSaveButton()" 
+            > 
                 Save changes to the database
             </button>
         </div>
@@ -280,7 +288,6 @@ export default {
             <form class="mainPageForm"> 
                 <!-- -----------------------FILTERS------------------------------------------------- -->
                 <div class="mainPageFormSection">
-                    <div v-if="!RouteGradeRangeSelected && !RouteHoldColourSelected"class="applyFilters"> Apply filters to see routes on the map</div>
                     <div class="filterSubsection">
                         <div class="filterSubsectionHeader">Hold Colour:</div>
                         <SelectOption
@@ -306,14 +313,16 @@ export default {
                     <div class="mainPageFormMiddleSection">
                         <div>
                             Routes <span class="fw-bold">added</span> by you just now:
-                            <div v-show="this.routesToAddToDatabase.length > 0" class="editRoutesSectionList">
-                                <RouteList
-                                    :routeList="this.routesToAddToDatabase"
-                                    :holdColourChoices="this.holdColourChoices"
-                                    :gradeRangeChoices="this.gradeRangeChoices"
-                                    @filterRoutes="(route) => FilterRoutes(route)"
-                                >
-                                </RouteList>
+                            <div v-show="this.routesToAddToDatabase.length > 0" >
+                                <div class="listOfRoutesSmall">
+                                    <RouteList
+                                        :routeList="this.routesToAddToDatabase"
+                                        :holdColourChoices="this.holdColourChoices"
+                                        :gradeRangeChoices="this.gradeRangeChoices"
+                                        @filterRoutes="(route) => FilterRoutes(route)"
+                                    >
+                                    </RouteList>
+                                </div>
                             </div>
                             <div v-show="this.routesToAddToDatabase.length === 0" class="mainPageFormMiddleSectionWarning fw-bold">
                                 No routes added by you
@@ -321,14 +330,16 @@ export default {
                         </div>
                         <div>
                             Routes <span class="fw-bold">deleted</span> by you just now:  
-                            <div v-show="this.routesToDeleteFromDatabase.length > 0" class="editRoutesSectionList">
-                                <RouteList
-                                    :routeList="this.routesToDeleteFromDatabase"
-                                    :holdColourChoices="this.holdColourChoices"
-                                    :gradeRangeChoices="this.gradeRangeChoices"
-                                    @filterRoutes="(route) => FilterRoutes(route)"
-                                >
-                                </RouteList>
+                            <div v-show="this.routesToDeleteFromDatabase.length > 0" >
+                                <div class="listOfRoutesSmall">
+                                    <RouteList
+                                        :routeList="this.routesToDeleteFromDatabase"
+                                        :holdColourChoices="this.holdColourChoices"
+                                        :gradeRangeChoices="this.gradeRangeChoices"
+                                        @filterRoutes="(route) => FilterRoutes(route)"
+                                    >
+                                    </RouteList>
+                                </div>
                             </div>
                             <div v-show="this.routesToDeleteFromDatabase.length === 0" class="mainPageFormMiddleSectionWarning fw-bold">
                                 No routes deleted by you 
@@ -340,28 +351,32 @@ export default {
                  <!-- -------------------------------CUSTOMER--------------------------------- -->
                   <div v-if="!isClimbingStaffMember" class="mainPageFormSection">
                     <div class="mainPageFormMiddleSection">
-                        <div v-show="this.routesClimbedByUserInSession.length > 0">
-                            <div>Routes climbed By You this session:</div>
-                            <RouteList
-                                :routeList="this.routesClimbedByUserInSession"
-                                :holdColourChoices="this.holdColourChoices"
-                                :gradeRangeChoices="this.gradeRangeChoices"
-                                @filterRoutes="(route) => FilterRoutes(route)"
-                            >
-                            </RouteList>
+                        <div>Routes climbed by you this session:</div>
+                        <div v-show="this.routesClimbedByUserInSession.length > 0" >
+                            <div class="listOfRoutesSmall" >
+                                <RouteList
+                                    :routeList="this.routesClimbedByUserInSession"
+                                    :holdColourChoices="this.holdColourChoices"
+                                    :gradeRangeChoices="this.gradeRangeChoices"
+                                    @filterRoutes="(route) => FilterRoutes(route)"
+                                >
+                                </RouteList>
+                            </div>
                         </div>
                         <div v-show="this.routesClimbedByUserInSession.length === 0" class="mainPageFormMiddleSectionWarning fw-bold">
                             No routes tracked by you this session
                         </div>
-                        <div>Routes climbed By You in Database:</div>
-                        <div v-show="this.routesClimbedByUserInDatabase.length > 0" class="editRoutesSectionList">
-                            <RouteList
-                                :routeList="this.routesClimbedByUserInDatabase"
-                                :holdColourChoices="this.holdColourChoices"
-                                :gradeRangeChoices="this.gradeRangeChoices"
-                                @filterRoutes="(route) => FilterRoutes(route)"
-                            >
-                            </RouteList>
+                        <div>Routes climbed by you in the database:</div>
+                        <div v-show="this.routesClimbedByUserInDatabase.length > 0">
+                            <div class="listOfRoutesSmall" >
+                                <RouteList
+                                    :routeList="this.routesClimbedByUserInDatabase"
+                                    :holdColourChoices="this.holdColourChoices"
+                                    :gradeRangeChoices="this.gradeRangeChoices"
+                                    @filterRoutes="(route) => FilterRoutes(route)"
+                                >
+                                </RouteList>
+                            </div>
                         </div>
                         <div v-show="this.routesClimbedByUserInDatabase.length === 0" class="mainPageFormMiddleSectionWarning fw-bold">
                             No routes tracked by you in the database
@@ -377,6 +392,8 @@ export default {
                             :routeList="this.allRoutes"
                             :holdColourChoices="this.holdColourChoices"
                             :gradeRangeChoices="this.gradeRangeChoices"
+                            :deletedRoutes="this.routesToDeleteFromDatabase"
+                            :climbedByUserRoutes="this.routesClimbedByUserInDatabase"
                             @filterRoutes="(route) => {FilterRoutes(route)}"
                         >
                         </RouteList>
@@ -454,7 +471,12 @@ export default {
     margin: 5px;
     padding: 10px;
 } 
-.saveChanges:hover {
+
+.saveChanges:disabled{
+    background-color: #7c7c7c;
+    cursor: default; 
+}
+.saveChanges:hover:enabled {
     background-color: #994931;
     cursor: pointer; 
 }
@@ -472,13 +494,6 @@ export default {
     color: black;
     text-align: center;
     background: rgba(255, 255, 255, 0.85);
-}
-.applyFilters {
-    font-size: 0.8em;
-    font-weight: bold;
-    color: #E13B3B;
-    margin-top: 2%;
-    margin-bottom: 2%;
 }
 .filterSubsection {
     display: flex;
@@ -501,9 +516,6 @@ export default {
 .selectForm:hover {
      cursor: pointer; 
 }
-.mainPageFormMiddleSection {
-    padding: 5%;
-}
 .mainPageFormMiddleSectionWarning {
     background-color: #E9704B;
     color: white;
@@ -511,8 +523,20 @@ export default {
     padding: 3%;
     margin: 2%;
 }
+.listOfRoutesSmall {
+    max-height: 100px;
+    overflow:scroll;
+    border-width: 3px;
+    border-radius: 5px;
+    border-color: #E9704B;
+    border-style: solid;
+    background-color: white;
+    color: white;
+    scrollbar-color: #E13B3B white;
+    scrollbar-width: medium;
+}
 .listOfRoutes {
-    height: 300px;
+    max-height: 300px;
     overflow:scroll;
     border-width: 3px;
     border-radius: 5px;
@@ -527,18 +551,6 @@ export default {
 .listOfRoutesHeader {
     padding: 3%;
     margin: 2%;
-}
-.editRoutesSectionList {
-    height: 100px;
-    overflow:scroll;
-    border-width: 3px;
-    border-radius: 5px;
-    border-color: #E9704B;
-    background-color: white;
-    border-style: solid;
-    scrollbar-color: #E13B3B white;
-    scrollbar-width: medium;
-    margin: 3px;
 }
 .listGroupItem {
     border-radius: 0;

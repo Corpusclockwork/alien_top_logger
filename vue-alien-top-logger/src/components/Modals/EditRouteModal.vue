@@ -17,8 +17,11 @@ export default {
         gradeRangeChoices: Array, 
         holdColourChoices: Array,
 
-        selectedRouteClimbedByUser: Boolean,
+        selectedRouteClimbedByUserInSession: Boolean,
+        selectedRouteClimbedByUserInDatabase: Boolean,
+
         selectedRouteDestroyedByUser: Boolean,
+
         isClimbingStaffMember: Boolean
     },
     methods: {
@@ -29,7 +32,7 @@ export default {
     },
     watch: {
         marker(){
-            this.climbedByUserLocal = this.selectedRouteClimbedByUser;
+            this.climbedByUserLocal = this.selectedRouteClimbedByUserInSession;
             this.destroyRouteLocal = this.selectedRouteDestroyedByUser;
         }
     }
@@ -79,24 +82,28 @@ export default {
                     <div v-if="isClimbingStaffMember">
                         <div class="custom-control custom-switch">
                             <input class=" editCheckbox custom-control-input" type="checkbox" role="switch" id="destroyRoute" v-model="destroyRouteLocal" />
-                            <label class="custom-control-label" for="destroyRoute">Destroy selected Route ?</label>
+                            <label class="custom-control-label" for="destroyRoute">Delete this Route ?</label>
                         </div>
                         <div class="negativeIdWarning" v-if="marker?.id < 0">A negative route id means that the route hasn't been saved in the database yet</div>
                     </div>
                     <!-- ------------------------------------------------------------------------------------->
                      <!-- ------------------------------------CUSTOMER ----------------------------------------->
                     <div v-if="!isClimbingStaffMember">
-                        <div class="custom-control custom-switch">
+                        <div v-if="!selectedRouteClimbedByUserInDatabase" class="custom-control custom-switch">
                             <input class="editCheckbox custom-control-input" type="checkbox" role="switch" id="climbedByUserLocal" v-model="climbedByUserLocal" />
-                            <label class="custom-control-label" for="climbedByUserLocal">Climbed by you ?</label>
+                            <label class="custom-control-label" for="climbedByUserLocal">Has this route been climbed by you ?</label>
+                        </div>
+                        <div v-if="selectedRouteClimbedByUserInDatabase" class="custom-control custom-switch">
+                            Route has already been climbed by you
                         </div>
                     </div>
                     <!-- ------------------------------------------------------------------------------------>
                 </form>
             </div>
-            <div class="modal-footer">
+            <div v-if="!selectedRouteClimbedByUserInDatabase" class="modal-footer">
                 <button type="button" class="climbingAppButton" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="climbingAppButton" data-bs-dismiss="modal" @click="$emit('on-ok', {climbedByUserLocal, destroyRouteLocal});" >Save Route</button>
+                <button v-if="isClimbingStaffMember" type="button" class="climbingAppButton" data-bs-dismiss="modal" @click="$emit('on-ok', {destroyRouteLocal});" >Delete Route</button>
+                <button v-if="!isClimbingStaffMember" type="button" class="climbingAppButton" data-bs-dismiss="modal" @click="$emit('on-ok', {climbedByUserLocal});" >Save</button>
             </div>
         </div>
     </div>
@@ -128,5 +135,8 @@ export default {
     padding: 4px;
     padding: 4px;
     border-radius: 4px;
+    border-style: solid;
+    border-color: black;
+    border-width: 1px;
 }
 </style>

@@ -77,7 +77,7 @@ export default {
             </div>
             <div class="modal-footer">
                 <button type="button" class="climbingAppButton" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="climbingAppButton" data-bs-dismiss="modal" @click="$emit('on-ok', newRouteObject);" :disabled="(this.newRouteHoldColour === null) || (this.newRouteGradeRange === null)" >Save Route</button>
+                <button type="button" class="climbingAppButton" data-bs-dismiss="modal" @click="$emit('on-ok', newRouteObject);" :disabled="(this.newRouteHoldColour === null) || (this.newRouteGradeRange === null)" >Add Route</button>
             </div>
         </div>
     </div>

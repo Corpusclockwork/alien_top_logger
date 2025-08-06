@@ -4,7 +4,11 @@ export default {
     props:{
         routeList: Array,
         holdColourChoices: Array, 
-        gradeRangeChoices: Array
+        gradeRangeChoices: Array,
+
+        deletedRoutes: Array,
+
+        climbedByUserRoutes: Array
     },
     methods:{
         getLabel(value, choices){
@@ -13,17 +17,29 @@ export default {
         },
         clickedRoute(route) {
             this.$emit("filterRoutes", route);
+        },
+        deletedRoutesClass(route){
+            if (this.deletedRoutes?.find(deletedRoute => deletedRoute?.RouteId === route.RouteId)) {
+                return "routeDeleted"
+            } 
+            return "";
+        },
+        routeClimbedByUser(route){
+             if (this.climbedByUserRoutes?.find(climbedRoute => climbedRoute?.RouteId === route.RouteId)) {
+                return true
+            } 
+            return "";
         }
     }
 }
 </script>
 <template>
 <div class="list-group overflow-scroll" v-for="route in routeList" :key="route.RouteId">
-    <div @click="clickedRoute(route)" class="listGroupItem" :class="route.RouteColour"> 
+    <div @click="clickedRoute(route)" class="listGroupItem" :class="route.RouteColour, deletedRoutesClass(route)"> 
+        <div v-if="routeClimbedByUser(route)" class="routeClimbed"> &#x2713 </div>
         <div><span>{{ getLabel(route.RouteColour, holdColourChoices) }}</span></div>
         <div>{{ getLabel(route.RouteGradeRange, gradeRangeChoices) }}</div>
-        <div><span class="fw-bold">Location: </span> {{ route.RouteLocationXAxis }}, {{ route.RouteLocationYAxis }}</div>
-        <div><span class="fw-bold">Created On: </span> {{ route.RouteCreatedAt }}</div>
+        <div v-if="route.RouteCreatedAt"><span class="fw-bold">Created: </span> {{ new Date(route.RouteCreatedAt).toLocaleDateString("en-UK") }}</div>
     </div>
 </div>
 </template>
@@ -39,5 +55,14 @@ export default {
 }
 .listGroupItem:hover {
      cursor: pointer; 
+}
+.routeDeleted {
+    opacity: 0.6;
+    text-decoration: line-through;
+}
+.routeClimbed {
+    position: absolute;
+    right: 10%;
+    font-weight: bold;
 }
 </style>

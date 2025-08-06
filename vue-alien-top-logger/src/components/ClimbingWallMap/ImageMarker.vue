@@ -98,11 +98,12 @@ export default {
 
         // ---------------------------------------------------------------------------------------------------
         // ------------------------------------CUSTOMER----------------------------------------------------
-        selectedRouteClimbedByUser(){
-            const climbedByUserInDatabase = this.routesClimbedByUserInDatabase.map(route => route.RouteId).includes(this.selectedRoute?.id);
-            const climbedByUserInSession = this.routesClimbedByUserInSession.map(route => route.RouteId).includes(this.selectedRoute?.id);
-            return climbedByUserInDatabase || climbedByUserInSession;
+        routeClimbedByUserInSession(routeId){
+            return this.routesClimbedByUserInSession.map(routeClimbedByUser => routeClimbedByUser.RouteId).includes(routeId);
         },
+        routeClimbedByUserInDatabase(routeId){
+            return this.routesClimbedByUserInDatabase.map(routeClimbedByUser => routeClimbedByUser.RouteId).includes(routeId);
+        }
         // ---------------------------------------------------------------------------------------------------
     },
     watch : {
@@ -135,6 +136,8 @@ export default {
                     :x_percentage = marker.x
                     :y_percentage = marker.y
                     :hold_colour = marker.colour
+                    :climbedByUserInSession = routeClimbedByUserInSession(marker.id)
+                    :climbedByUserInDatabase = routeClimbedByUserInDatabase(marker.id)
                 />
             </div>
         </div>
@@ -148,7 +151,9 @@ export default {
         :holdColourChoices="this.holdColourChoices"
 
         :selectedRouteDestroyedByUser="this.routesToDeleteFromDatabase?.includes(this.selectedRoute?.id)"
-        :selectedRouteClimbedByUser="selectedRouteClimbedByUser()"
+
+        :selectedRouteClimbedByUserInSession="routeClimbedByUserInSession(this.selectedRoute?.id)"
+        :selectedRouteClimbedByUserInDatabase="routeClimbedByUserInDatabase(this.selectedRoute?.id)"
 
         @on-ok="editRoute"
         @on-cancel="cancelEditRoute"  
