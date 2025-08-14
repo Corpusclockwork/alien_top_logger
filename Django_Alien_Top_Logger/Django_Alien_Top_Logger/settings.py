@@ -44,15 +44,15 @@ INSTALLED_APPS = [
     'climbing_app'
 ]
 
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:5173',
-    'http://127.0.0.1:5173',
+CSRF_TRUSTED_ORIGINS = [
+    'http://127.0.0.1:8000',
+    'http://localhost:8000'
 ]
-CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
-CORS_ALLOW_CREDENTIALS = True
-CSRF_TRUSTED_ORIGINS = ['http://localhost:5173',  'http://127.0.0.1:5173']
 
-# PROD ONLY
+CSRF_COOKIE_SAMESITE = 'Strict'
+SESSION_COOKIE_SAMESITE = 'Strict'
+
+# PROD ONLY (after SSL)
 # CSRF_COOKIE_SECURE = True
 # SESSION_COOKIE_SECURE = True
 
@@ -82,7 +82,7 @@ ROOT_URLCONF = 'Django_Alien_Top_Logger.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR.parent.joinpath('vue-alien-top-logger')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -147,6 +147,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+
+STATICFILES_DIRS = [
+    BASE_DIR.parent.joinpath('vue-alien-top-logger', 'dist'),
+]
+
+STATIC_ROOT = BASE_DIR.joinpath("static-files-for-deployment")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

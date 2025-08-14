@@ -49,7 +49,7 @@ export default {
             return cookieValue;
         },
         async loginUser(loginDetails) {
-            const response = await fetch("http://localhost:8000/api/v1/login/", {
+            const response = await fetch("/api/v1/login/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -69,7 +69,7 @@ export default {
         },
         async logoutUser() {
             try {
-                const response = await fetch("http://localhost:8000/api/v1/logout/", {
+                const response = await fetch("/api/v1/logout/", {
                     method: 'POST',
                     headers: {
                         "Content-Type": "application/json",
@@ -88,12 +88,12 @@ export default {
             }
         },
         async setCSRFToken() {
-            await fetch("http://localhost:8000/api/v1/session/",{
+            await fetch("/api/v1/session/",{
                 credentials: "include"
             })        
         },
         async whoAmI() {
-            const response = await fetch("http://localhost:8000/api/v1/whoami/",{
+            const response = await fetch("/api/v1/whoami/",{
                 method: 'GET',
                 credentials: "include",
                 headers: {
@@ -111,7 +111,7 @@ export default {
             }
         },
         async createUser(newUserDetails){
-            const response = await fetch("http://localhost:8000/api/v1/newuser/", {
+            const response = await fetch("/api/v1/newuser/", {
                 method: "POST",
                 headers: {
                     'Accept': 'application/json',

@@ -9,8 +9,7 @@ export default {
             markers: [],      
             newMarkerX: null,
             newMarkerY: null,
-            selectedRoute: null,
-            imageLoading: true
+            selectedRoute: null
         }
     },
     components: {
@@ -121,8 +120,7 @@ export default {
             <img
                 class="ImageMarkerImageClass"
                 id="Alienbloc_shape_id"
-                :src="imageLoading ? '/alien_bloc_shape_final_low_quality.jpg' : '/alien_bloc_shape_final.jpg'"
-                @load="imageLoading = false" 
+                src="/alien_bloc_shape_final.jpg"
                 alt= "Alien bloc"
                 @click="setNewRouteLocation"
                 :data-bs-toggle="isClimbingStaffMember ? 'modal' : ''"

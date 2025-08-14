@@ -16,10 +16,19 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.shortcuts import render
+
+def index_view(request):
+    return render(request, 'dist/index.html')
+
+def image_view(request):
+    return render(request, 'dist/alien_bloc_shape_final.jpg')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("api/v1/", include("djoser.urls")),
     path("api/v1/", include("djoser.urls.authtoken")),
-    path("api/v1/", include("climbing_app.urls"))
+    path("api/v1/", include("climbing_app.urls")),
+    path('', index_view, name='index'),  
+    path('/alien_bloc_shape_final.jpg', image_view, name='image'),  
 ]

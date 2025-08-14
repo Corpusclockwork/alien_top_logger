@@ -47,7 +47,7 @@ export default {
     methods: {
         // ------------------------------------------ STAFF AND CUSTOMER ------------------------------------------------------
          async getRoutes() {
-            const response = await fetch('http://localhost:8000/api/v1/routes/');
+            const response = await fetch('/api/v1/routes/');
             const data = await response.json()
             this.allRoutes = data.routes;
             this.allRoutes.sort(function(a,b){
@@ -56,12 +56,12 @@ export default {
             console.log(this.allRoutes);
         },
         async getGradeRanges() {
-            const response = await fetch('http://localhost:8000/api/v1/routes/graderanges/');
+            const response = await fetch('/api/v1/routes/graderanges/');
             const data = await response.json()
             this.gradeRangeChoices = data.gradeRangeChoices;
         },
         async getHoldColours() {
-            const response = await fetch('http://localhost:8000/api/v1/routes/holdcolours/');
+            const response = await fetch('/api/v1/routes/holdcolours/');
             const data = await response.json()
             this.holdColourChoices = data.holdColourChoices;
         },
@@ -131,7 +131,7 @@ export default {
         async saveNewRoutesInDatabase() {
             //clear the negative ids we have been using for the routes
             this.routesToAddToDatabase.forEach((route) => {delete route.RouteId});
-            const response = await fetch("http://localhost:8000/api/v1/routes/create/", {
+            const response = await fetch("/api/v1/routes/create/", {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json',
@@ -143,7 +143,7 @@ export default {
         },
         async deleteRoutesFromDatabase() {
             const ids = this.routesToDeleteFromDatabase.map(route => route.RouteId);
-            const response = await fetch("http://localhost:8000/api/v1/routes/delete/", {
+            const response = await fetch("/api/v1/routes/delete/", {
                 credentials: "include",
                 method: "POST",
                 headers: {
@@ -180,7 +180,7 @@ export default {
         // ------------------------------------------------------------------------------------------
         // ----------------------------------------------CUSTOMER-------------------------------------
         async getTrackedRoutesForUser() {
-            const response = await fetch('http://localhost:8000/api/v1/routes/getuserroutes/', {
+            const response = await fetch('/api/v1/routes/getuserroutes/', {
                 credentials: "include",
                 // look, we are getting sensitive data so I'm using a POST request, you can take it up with my manager who is also me :)))
                 method: "POST",
@@ -199,7 +199,7 @@ export default {
         },
         async trackRoutesInDatabase() {
             const routeIdsAdd = this.routesClimbedByUserInSession.map(route => route.RouteId);
-            const response = await fetch("http://localhost:8000/api/v1/routes/track/", {
+            const response = await fetch("/api/v1/routes/track/", {
                 credentials: "include",
                 method: "POST",
                 headers: {
