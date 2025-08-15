@@ -28,11 +28,11 @@ def favicon_view(request):
     return render(request, 'dist/alien_top_logger.png')
 
 urlpatterns = [
+    path('static/alien_top_logger.png', favicon_view, name='favicon'), 
+    path('alien_bloc_shape_final.jpg', image_view, name='image'), 
     path('admin/', admin.site.urls),
     path("api/v1/", include("djoser.urls")),
     path("api/v1/", include("djoser.urls.authtoken")),
     path("api/v1/", include("climbing_app.urls")),
-    path('', index_view, name='index'),  
-    path('alien_bloc_shape_final.jpg', image_view, name='image'),  
-    path('static/alien_top_logger.png', favicon_view, name='favicon'),  
+    path('', index_view, name='index'),   
 ]
