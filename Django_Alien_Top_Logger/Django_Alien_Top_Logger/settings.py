@@ -101,11 +101,19 @@ WSGI_APPLICATION = 'Django_Alien_Top_Logger.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'NAME': 'climbing_database_test',
+    #     'USER': 'root',
+    #     'PASSWORD': 'Ebeuen73)bejen,-;7',
+    #     'HOST': 'localhost',
+    #     'PORT': '3306'
+    # },
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'climbing_database_test',
-        'USER': 'root',
-        'PASSWORD': 'Ebeuen73)bejen,-;7',
+        'NAME': 'climbingappdatabase',
+        'USER': 'adminuser',
+        'PASSWORD': 'adminuser-123VpxTuIrFGJ',
         'HOST': 'localhost',
         'PORT': '3306'
     }
