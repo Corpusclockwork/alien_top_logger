@@ -34,5 +34,5 @@ urlpatterns = [
     path("api/v1/", include("climbing_app.urls")),
     path('', index_view, name='index'),  
     path('alien_bloc_shape_final.jpg', image_view, name='image'),  
-    path('alien_top_logger.png', favicon_view, name='favicon'),  
+    path('static/alien_top_logger.png', favicon_view, name='favicon'),  
 ]
