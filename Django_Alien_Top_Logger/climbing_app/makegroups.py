@@ -1,12 +1,12 @@
 # RUN THIS WHOLE THING IN SHELL AFTER MIGRATIONS HAVE BEEN RUN
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
-from .models import Route
+from climbing_app import models
 
 isClimbingStaffMember, created = Group.objects.get_or_create(name='isClimbingStaffMember')
 isClimbingCustomer, created = Group.objects.get_or_create(name='isClimbingCustomer')
 
-RouteContentType = ContentType.objects.get_for_model(Route)
+RouteContentType = ContentType.objects.get_for_model(models.Route)
 
 can_delete_routes_permission, created = Permission.objects.get_or_create(
     codename='can_delete_routes',

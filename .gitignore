@@ -21,6 +21,7 @@ dist-ssr
 *.ntvs*
 *.njsproj
 *.sln
+*.log
 *.sw?
 __pycache__
 **/__pycache__/

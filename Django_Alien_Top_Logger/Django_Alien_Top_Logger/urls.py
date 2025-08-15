@@ -24,6 +24,9 @@ def index_view(request):
 def image_view(request):
     return render(request, 'dist/alien_bloc_shape_final.jpg')
 
+def favicon_view(request):
+    return render(request, 'dist/alien_top_logger.png')
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("api/v1/", include("djoser.urls")),
@@ -31,4 +34,5 @@ urlpatterns = [
     path("api/v1/", include("climbing_app.urls")),
     path('', index_view, name='index'),  
     path('alien_bloc_shape_final.jpg', image_view, name='image'),  
+    path('alien_top_logger.png', favicon_view, name='favicon'),  
 ]
