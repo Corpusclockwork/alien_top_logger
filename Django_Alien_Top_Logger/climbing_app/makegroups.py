@@ -1,7 +1,7 @@
 # RUN THIS WHOLE THING IN SHELL AFTER MIGRATIONS HAVE BEEN RUN
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
-from models import Route
+from .models import Route
 
 isClimbingStaffMember, created = Group.objects.get_or_create(name='isClimbingStaffMember')
 isClimbingCustomer, created = Group.objects.get_or_create(name='isClimbingCustomer')
