@@ -30,5 +30,5 @@ urlpatterns = [
     path("api/v1/", include("djoser.urls.authtoken")),
     path("api/v1/", include("climbing_app.urls")),
     path('', index_view, name='index'),  
-    path('/alien_bloc_shape_final.jpg', image_view, name='image'),  
+    path('alien_bloc_shape_final.jpg', image_view, name='image'),  
 ]
