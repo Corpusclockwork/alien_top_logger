@@ -51,7 +51,7 @@ CSRF_TRUSTED_ORIGINS = [
     'http://127.0.0.1:8000',
     'http://localhost:8000',
     'http://209.97.128.126',
-    'http://alienroutelogger.com'
+    'http://alienroutelogger.com',
     'https://209.97.128.126',
     'https://alienroutelogger.com'
 ]
