@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from os import environ
+env = environ.Env()
+environ.Env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +23,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-^bg%&t9tz3_)(xiv@x7gw$m&eh$ennj1z9@vw8h5+bm%4fyf90'
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["209.97.128.126", "127.0.0.1"]
+ALLOWED_HOSTS = ["209.97.128.126", "127.0.0.1", "alienroutelogger.com"]
 
 
 # Application definition
@@ -46,7 +49,9 @@ INSTALLED_APPS = [
 
 CSRF_TRUSTED_ORIGINS = [
     'http://127.0.0.1:8000',
-    'http://localhost:8000'
+    'http://localhost:8000',
+    'http://209.97.128.126',
+    'http://alienroutelogger.com'
 ]
 
 CSRF_COOKIE_SAMESITE = 'Strict'
@@ -109,7 +114,16 @@ DATABASES = {
     #     'HOST': 'localhost',
     #     'PORT': '3306'
     # },
-    'default': {
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'NAME': env('DATABASE_NAME'),
+    #     'USER': env('DATABASE_USER'),
+    #     'PASSWORD': env('DATABASE_PASS'),
+    #     'HOST': 'localhost',
+    #     'PORT': '3306'
+    # }
+
+     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'climbingappdatabase',
         'USER': 'adminuser',
