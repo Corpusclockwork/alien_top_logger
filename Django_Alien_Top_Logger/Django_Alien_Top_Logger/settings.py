@@ -52,6 +52,8 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8000',
     'http://209.97.128.126',
     'http://alienroutelogger.com'
+    'https://209.97.128.126',
+    'https://alienroutelogger.com'
 ]
 
 CSRF_COOKIE_SAMESITE = 'Strict'
