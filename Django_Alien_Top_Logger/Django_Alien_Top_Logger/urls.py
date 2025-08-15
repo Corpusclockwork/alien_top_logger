@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.shortcuts import render
+from django.views.generic import RedirectView
 
 def index_view(request):
     return render(request, 'dist/index.html')
@@ -28,11 +29,12 @@ def favicon_view(request):
     return render(request, 'dist/alien_top_logger.png')
 
 urlpatterns = [
-    path('static/alien_top_logger.png', favicon_view, name='favicon'), 
-    path('alien_bloc_shape_final.jpg', image_view, name='image'), 
     path('admin/', admin.site.urls),
     path("api/v1/", include("djoser.urls")),
     path("api/v1/", include("djoser.urls.authtoken")),
     path("api/v1/", include("climbing_app.urls")),
-    path('', index_view, name='index'),   
+    path('', index_view, name='index'),  
+    path('alien_bloc_shape_final.jpg', image_view, name='image'),  
+    path('static/alien_top_logger.png', favicon_view, name='favicon'),  
+    path('favicon.ico', RedirectView.as_view(url='/static/alien_top_logger.png')),
 ]
