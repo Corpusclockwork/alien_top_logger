@@ -11,10 +11,10 @@ export default {
     },
     methods: {
         getXPercentage() {
-            return this.x_percentage + '%';
+            return (this.x_percentage-2) + '%';
         },
         getYPercentage() {
-            return this.y_percentage + '%';
+            return (this.y_percentage-2) + '%';
         },
         getOpacity(){
             return (this.climbedByUserInSession || this.climbedByUserInDatabase) ? '0.6' : '1';
@@ -49,7 +49,6 @@ export default {
     width: 3.5vw;
     height: 3.5vw;
     border-width: 0.3vw;
-
     border-radius: 50%;
     position: absolute;
     cursor: pointer;

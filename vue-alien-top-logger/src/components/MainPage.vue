@@ -53,7 +53,6 @@ export default {
             this.allRoutes.sort(function(a,b){
                 return new Date(b.RouteCreatedAt) - new Date(a.RouteCreatedAt);
             });
-            console.log(this.allRoutes);
         },
         async getGradeRanges() {
             const response = await fetch('/api/v1/routes/graderanges/');

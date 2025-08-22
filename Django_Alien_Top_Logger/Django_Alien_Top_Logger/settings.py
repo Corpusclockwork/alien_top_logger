@@ -11,25 +11,24 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
-# from os import environ
-# env = environ.en
-# environ.Env.read_env()
+
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "efwufwnriymgeuf"
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG')
 
-ALLOWED_HOSTS = ["209.97.128.126", "127.0.0.1", "alienroutelogger.com"]
-
+ALLOWED_HOSTS = [os.getenv('ALLOWED_HOSTS')]
 
 # Application definition
 
@@ -47,21 +46,15 @@ INSTALLED_APPS = [
     'climbing_app'
 ]
 
-CSRF_TRUSTED_ORIGINS = [
-    'http://127.0.0.1:8000',
-    'http://localhost:8000',
-    'http://209.97.128.126',
-    'http://alienroutelogger.com',
-    'https://209.97.128.126',
-    'https://alienroutelogger.com'
-]
+CSRF_TRUSTED_ORIGINS = [os.getenv('CSRF_TRUSTED_ORIGINS')]
+
 
 CSRF_COOKIE_SAMESITE = 'Strict'
 SESSION_COOKIE_SAMESITE = 'Strict'
 
-# PROD ONLY (after SSL)
-# CSRF_COOKIE_SECURE = True
-# SESSION_COOKIE_SECURE = True
+# # PROD ONLY (after SSL)
+CSRF_COOKIE_SECURE = os.getenv("CSRF_COOKIE_SECURE")
+SESSION_COOKIE_SECURE = os.getenv("SESSION_COOKIE_SECURE")
 
 
 # REST_FRAMEWORK = {
@@ -108,33 +101,15 @@ WSGI_APPLICATION = 'Django_Alien_Top_Logger.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.mysql',
-    #     'NAME': 'climbing_database_test',
-    #     'USER': 'root',
-    #     'PASSWORD': 'Ebeuen73)bejen,-;7',
-    #     'HOST': 'localhost',
-    #     'PORT': '3306'
-    # },
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.mysql',
-    #     'NAME': env('DATABASE_NAME'),
-    #     'USER': env('DATABASE_USER'),
-    #     'PASSWORD': env('DATABASE_PASS'),
-    #     'HOST': 'localhost',
-    #     'PORT': '3306'
-    # }
-
-     'default': {
+    'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'climbingappdatabase',
-        'USER': 'adminuser',
-        'PASSWORD': 'adminuser-123VpxTuIrFGJ',
+        'NAME':  os.getenv("DATABASE_NAME"),
+        'USER': os.getenv("DATABASE_USER"),
+        'PASSWORD': os.getenv("DATABASE_PASSWORD"),
         'HOST': 'localhost',
         'PORT': '3306'
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators

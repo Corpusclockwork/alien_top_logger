@@ -68,6 +68,9 @@ export default {
             }
         },
         async logoutUser() {
+            this.mainPageMessageToDisplay= "";
+            this.loginUserMessageToDisplay= "";
+            this.newUserMessageToDisplay= "";
             try {
                 const response = await fetch("/api/v1/logout/", {
                     method: 'POST',
@@ -83,7 +86,7 @@ export default {
                     this.isClimbingStaffMember = undefined;
                 }
             } catch(error) {
-                this.mainPageMessageToDisplay= "Log out failed, honestly congrats, idk how you *did* that"
+                this.mainPageMessageToDisplay= "Log out failed, honestly congrats, idk how you *did* that";
                 throw error
             }
         },
