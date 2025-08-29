@@ -56,7 +56,6 @@ DATABASE_PASSWORD=yourdatebasepassword
 15. Go to http://127.0.0.1:8000
 
 ## ToDo
-**ToDo: Functionality:**
  * Customer users being able to see what routes other users have climbed would be good. If I do this, I feel like I should give customers the opportunity to not allow their route data to be visible to other users if they want to opt out of this.
   * Staff users should be able to see what staff user has added which route.
   * Staff users should be able to say that they have climbed a particular route to test it as a staff member.
