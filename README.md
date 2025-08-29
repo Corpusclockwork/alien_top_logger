@@ -63,8 +63,4 @@ DATABASE_PASSWORD=yourdatebasepassword
   * Staff users should be able to  change the date and time of route creation.
   * I haven't implemented locking for staff users so they can't both edit the same route at once, maybe something to think about later, especially if I wind up with staff being able to change the location and date and time of creation of a route.
   * I think having a beginning and end grade range slider instead of a dropdown would be good as well, ie, being able to select all routes with blue holds between V0 and V5. It would mean changing the way grades are stored in the database though, which might be a bit annoying.
-  * The map for the first and second room shouldn't be next to each other, I think they should be a slideshow of images you can click between which would leave space next to the slideshow to have the filter section so the user could easily see both things when in full screen.
-    
-### Link to figma design:
-https://www.figma.com/design/vHwCqeF9en6vpSCyVGyRsy/Alien_Top_Logger?node-id=0-1&p=f&t=poWZ5xZ3xkm750QU-0
- 
+  * The map for the first and second room shouldn't be next to each other, I think they should be a slideshow of images you can click between which would leave space next to the slideshow to have the filter section so the user could easily see both things when in full screen. 
